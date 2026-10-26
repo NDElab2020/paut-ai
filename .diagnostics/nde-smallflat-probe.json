@@ -1,0 +1,720 @@
+{
+  "file": "/Users/eu/Downloads/small flat Al R_0002.nde",
+  "read": {
+    "meta": {
+      "ndeVersion": {
+        "raw": "4.2.0",
+        "family": "4.x",
+        "major": 4,
+        "minor": 2,
+        "patch": 0,
+        "preRelease": null
+      },
+      "deviceFileName": "small flat Al R",
+      "device": {
+        "platform": "OmniScan X4",
+        "model": "OmniScan X4 - 64:128PR",
+        "serialNumber": "QC-0107532",
+        "name": "MXU"
+      },
+      "createdAt": "2026-09-19T20:21:56+09:00",
+      "modifiedAt": "2026-09-19T20:23:42+09:00",
+      "application": {
+        "name": "MXU",
+        "version": "6.6.0.657"
+      },
+      "scenario": "General Mapping"
+    },
+    "spec": {
+      "specVersion": 2,
+      "specimen": {
+        "shape": "plate",
+        "thicknessMm": 13,
+        "outerRadiusMm": null,
+        "angularOpeningDeg": null,
+        "materialName": "Polyethylene",
+        "weld": null
+      },
+      "groups": [
+        {
+          "technique": "PA",
+          "formation": "linear",
+          "firstElement": 0,
+          "aperture": 8,
+          "elementStep": 1,
+          "refractedAngle": {
+            "startDeg": 0,
+            "stopDeg": 0,
+            "stepDeg": null
+          },
+          "focusing": {
+            "mode": "TrueDepth",
+            "distanceMm": 5
+          },
+          "waveMode": "Longitudinal",
+          "probes": [
+            {
+              "role": "pulseEcho",
+              "probe": {
+                "model": "5L64-A32",
+                "kind": "phasedArrayLinear",
+                "centralFrequencyMHz": 5,
+                "elementCount": 64,
+                "pitchMm": 0.5
+              },
+              "orientation": "Normal",
+              "wedge": {
+                "model": "SA32-0L",
+                "kind": "angleBeam",
+                "wedgeAngleDeg": 0
+              },
+              "position": {
+                "uOffsetMm": 0,
+                "vOffsetMm": 41.6,
+                "skewDeg": 90,
+                "surface": "Top"
+              }
+            }
+          ],
+          "techniqueParams": {
+            "lastElement": 63
+          }
+        }
+      ]
+    },
+    "summary": "판재 13 mm · 5L64-A32 · +41.6 mm · PA 선형 0°",
+    "warnings": []
+  },
+  "viewer": {
+    "formatFamily": "4.x",
+    "version": "4.2.0",
+    "groups": [
+      {
+        "id": 0,
+        "name": "GR-1",
+        "technique": "pa-linear",
+        "supported": false,
+        "reason": "빔이 2개 미만인 그룹은 아직 그리지 않습니다.",
+        "verified": false,
+        "amplitudePath": "/Public/Groups/0/Datasets/0-AScanAmplitude",
+        "statusPath": "/Public/Groups/0/Datasets/1-AScanStatus",
+        "shape": [
+          1201,
+          0,
+          348
+        ],
+        "bytes": 0,
+        "ampScale": {
+          "rawMax": 32767,
+          "unitMax": 200
+        },
+        "scan": {
+          "offsetMm": 0,
+          "resolutionMm": 0.25,
+          "count": 1201
+        },
+        "ultrasound": {
+          "resolutionUs": 0.04,
+          "count": 348
+        },
+        "beams": [],
+        "gates": [
+          {
+            "id": 0,
+            "name": "Gate I",
+            "geometry": "TrueDepth",
+            "sync": "Pulse",
+            "startUs": [
+              -3.27
+            ],
+            "lengthUs": [
+              5.71
+            ],
+            "thresholdPct": 20,
+            "supported": true,
+            "producesCscan": true,
+            "enabled": true,
+            "detection": "first",
+            "event": "edge"
+          },
+          {
+            "id": 1,
+            "name": "Gate A",
+            "geometry": "TrueDepth",
+            "sync": "Pulse",
+            "startUs": [
+              3.27
+            ],
+            "lengthUs": [
+              2.45
+            ],
+            "thresholdPct": 20,
+            "supported": true,
+            "producesCscan": true,
+            "enabled": true,
+            "detection": "max",
+            "event": "peak"
+          }
+        ],
+        "cscanGateId": 1,
+        "initialBeam": 0,
+        "gainDb": 3,
+        "referenceGainDb": 0,
+        "referenceAmplitudePct": 80,
+        "refBasis": "none",
+        "refPct": null,
+        "softGainDb": 0,
+        "positioning": {
+          "scanOffsetMm": 0,
+          "indexOffsetMm": 41.6,
+          "analysisScanOffsetMm": 0,
+          "analysisIndexOffsetMm": 0,
+          "reference": "WedgeStart"
+        }
+      }
+    ],
+    "specimen": {
+      "shape": "plate",
+      "thicknessMm": 13,
+      "weld": null
+    },
+    "display": {
+      "palette": [
+        "ffffff",
+        "fafcfe",
+        "f6fafd",
+        "f2f7fd",
+        "eef5fc",
+        "eaf2fb",
+        "e6f0fb",
+        "e1edfa",
+        "ddebf9",
+        "d9e8f9",
+        "d5e6f8",
+        "d1e3f7",
+        "cde1f7",
+        "c8def6",
+        "c4dcf6",
+        "c0d9f5",
+        "bcd7f4",
+        "b8d4f4",
+        "b4d2f3",
+        "afd0f2",
+        "abcdf2",
+        "a7cbf1",
+        "a3c8f0",
+        "9fc6f0",
+        "9bc3ef",
+        "96c1ef",
+        "92beee",
+        "8ebced",
+        "8ab9ed",
+        "86b7ec",
+        "82b4eb",
+        "7db2eb",
+        "79afea",
+        "75ade9",
+        "71aae9",
+        "6da8e8",
+        "69a6e8",
+        "66a1e5",
+        "639de2",
+        "6099df",
+        "5d95dc",
+        "5a91da",
+        "588dd7",
+        "5589d4",
+        "5285d1",
+        "4f81cf",
+        "4c7dcc",
+        "4979c9",
+        "4775c6",
+        "4471c3",
+        "416dc1",
+        "3e69be",
+        "3b65bb",
+        "3861b8",
+        "365db6",
+        "3359b3",
+        "3055b0",
+        "2d51ad",
+        "2a4daa",
+        "2749a8",
+        "2545a5",
+        "2241a2",
+        "1f3d9f",
+        "1c399d",
+        "19359a",
+        "163197",
+        "142d94",
+        "112991",
+        "0e258f",
+        "0b218c",
+        "081d89",
+        "051986",
+        "031584",
+        "041883",
+        "061c83",
+        "082083",
+        "0a2483",
+        "0c2883",
+        "0e2c83",
+        "103082",
+        "123482",
+        "143882",
+        "153c82",
+        "174082",
+        "194482",
+        "1b4881",
+        "1d4c81",
+        "1f5081",
+        "215481",
+        "235881",
+        "255c81",
+        "266080",
+        "286480",
+        "2a6880",
+        "2c6c80",
+        "2e7080",
+        "307480",
+        "32787f",
+        "347c7f",
+        "36807f",
+        "37847f",
+        "39887f",
+        "3b8c7f",
+        "3d907e",
+        "3f947e",
+        "41987e",
+        "439c7e",
+        "45a07e",
+        "47a47e",
+        "4ca67b",
+        "51a878",
+        "56aa75",
+        "5bac72",
+        "60ae6f",
+        "65b06c",
+        "6ab269",
+        "6fb467",
+        "74b764",
+        "79b961",
+        "7ebb5e",
+        "83bd5b",
+        "88bf58",
+        "8dc155",
+        "92c353",
+        "97c550",
+        "9cc74d",
+        "a1ca4a",
+        "a6cc47",
+        "abce44",
+        "b0d041",
+        "b5d23f",
+        "bad43c",
+        "bfd639",
+        "c4d836",
+        "c9da33",
+        "cedd30",
+        "d3df2d",
+        "d8e12b",
+        "dde328",
+        "e2e525",
+        "e7e722",
+        "ece91f",
+        "f1eb1c",
+        "f6ed19",
+        "fcf017",
+        "faec19",
+        "f9e91b",
+        "f8e61d",
+        "f7e31f",
+        "f6df22",
+        "f5dc24",
+        "f4d926",
+        "f2d628",
+        "f1d32b",
+        "f0cf2d",
+        "efcc2f",
+        "eec931",
+        "edc633",
+        "ecc236",
+        "eabf38",
+        "e9bc3a",
+        "e8b93c",
+        "e7b63f",
+        "e6b241",
+        "e5af43",
+        "e4ac45",
+        "e2a947",
+        "e1a54a",
+        "e0a24c",
+        "df9f4e",
+        "de9c50",
+        "dd9953",
+        "dc9555",
+        "da9257",
+        "d98f59",
+        "d88c5b",
+        "d7885e",
+        "d68560",
+        "d58262",
+        "d47f64",
+        "d37c67",
+        "d27b64",
+        "d27b62",
+        "d27b60",
+        "d27a5e",
+        "d17a5b",
+        "d17a59",
+        "d17957",
+        "d17955",
+        "d07953",
+        "d07850",
+        "d0784e",
+        "d0784c",
+        "cf774a",
+        "cf7747",
+        "cf7745",
+        "cf7643",
+        "ce7641",
+        "ce763f",
+        "ce753c",
+        "ce753a",
+        "cd7538",
+        "cd7436",
+        "cd7433",
+        "cd7431",
+        "cc732f",
+        "cc732d",
+        "cc732b",
+        "cc7228",
+        "cb7226",
+        "cb7224",
+        "cb7122",
+        "cb711f",
+        "ca711d",
+        "ca701b",
+        "ca7019",
+        "ca7017",
+        "c86d17",
+        "c66a17",
+        "c56717",
+        "c36417",
+        "c26217",
+        "c05f18",
+        "be5c18",
+        "bd5918",
+        "bb5718",
+        "ba5418",
+        "b85118",
+        "b74e19",
+        "b54b19",
+        "b34919",
+        "b24619",
+        "b04319",
+        "af4019",
+        "ad3e1a",
+        "ab3b1a",
+        "aa381a",
+        "a8351a",
+        "a7321a",
+        "a5301a",
+        "a42d1b",
+        "a22a1b",
+        "a0271b",
+        "9f251b",
+        "9d221b",
+        "9c1f1b",
+        "9a1c1c",
+        "98191c",
+        "97171c",
+        "95141c",
+        "94111c",
+        "920e1c",
+        "910c1d",
+        "8f091d",
+        "8e061d",
+        "8c031d"
+      ],
+      "specialColors": [
+        "000000",
+        "ffffff",
+        "808080"
+      ],
+      "paletteSource": "file",
+      "layout": "ABCS",
+      "layoutGroupMode": "Single",
+      "currentGroupId": 0,
+      "cscanReversed": true,
+      "readings": [
+        {
+          "groupId": 0,
+          "groupName": "GR-1",
+          "keys": [
+            "APercent",
+            "Thickness",
+            "MaterialLoss",
+            "Smr",
+            "Imr",
+            "BPercent",
+            "Thickness",
+            "TminZ",
+            "STminZ",
+            "ITminZ"
+          ],
+          "listId": 0
+        }
+      ]
+    },
+    "warnings": [],
+    "source": {
+      "createdBy": {
+        "name": "MXU",
+        "version": "6.6.0.657"
+      },
+      "modifiedBy": {
+        "name": "MXU",
+        "version": "6.6.0.657"
+      },
+      "savedBy": {
+        "name": "MXU",
+        "version": "6.6.0-release.657"
+      },
+      "platform": "X4",
+      "resavedByOmniPC": false,
+      "mxuVersion": "6.6.0",
+      "createdMxuVersion": "6.6.0",
+      "wedgeOffsetCaution": false,
+      "notes": []
+    }
+  },
+  "import": {
+    "counts": {
+      "match-existing": 0,
+      "new-plan": 1,
+      "duplicate": 0,
+      "missing-copy": 0,
+      "unsupported": 0,
+      "error": 0
+    },
+    "items": [
+      {
+        "itemId": "i0001",
+        "sourcePath": "/Users/eu/Downloads/small flat Al R_0002.nde",
+        "fileName": "small flat Al R_0002.nde",
+        "sizeBytes": 54416840,
+        "sha256": "3e342031b83e011851608a81a6b1daf4490489602434744f7600d5a27f4efff2",
+        "verdict": "new-plan",
+        "meta": {
+          "ndeVersion": {
+            "raw": "4.2.0",
+            "family": "4.x",
+            "major": 4,
+            "minor": 2,
+            "patch": 0,
+            "preRelease": null
+          },
+          "deviceFileName": "small flat Al R",
+          "device": {
+            "platform": "OmniScan X4",
+            "model": "OmniScan X4 - 64:128PR",
+            "serialNumber": "QC-0107532",
+            "name": "MXU"
+          },
+          "createdAt": "2026-09-19T20:21:56+09:00",
+          "modifiedAt": "2026-09-19T20:23:42+09:00",
+          "application": {
+            "name": "MXU",
+            "version": "6.6.0.657"
+          },
+          "scenario": "General Mapping",
+          "sha256": "3e342031b83e011851608a81a6b1daf4490489602434744f7600d5a27f4efff2",
+          "sizeBytes": 54416840,
+          "sourcePath": "/Users/eu/Downloads/small flat Al R_0002.nde",
+          "sourceFileName": "small flat Al R_0002.nde"
+        },
+        "setup": {
+          "spec": {
+            "specVersion": 2,
+            "specimen": {
+              "shape": "plate",
+              "thicknessMm": 13,
+              "outerRadiusMm": null,
+              "angularOpeningDeg": null,
+              "materialName": "Polyethylene",
+              "weld": null
+            },
+            "groups": [
+              {
+                "technique": "PA",
+                "formation": "linear",
+                "firstElement": 0,
+                "aperture": 8,
+                "elementStep": 1,
+                "refractedAngle": {
+                  "startDeg": 0,
+                  "stopDeg": 0,
+                  "stepDeg": null
+                },
+                "focusing": {
+                  "mode": "TrueDepth",
+                  "distanceMm": 5
+                },
+                "waveMode": "Longitudinal",
+                "probes": [
+                  {
+                    "role": "pulseEcho",
+                    "probe": {
+                      "model": "5L64-A32",
+                      "kind": "phasedArrayLinear",
+                      "centralFrequencyMHz": 5,
+                      "elementCount": 64,
+                      "pitchMm": 0.5
+                    },
+                    "orientation": "Normal",
+                    "wedge": {
+                      "model": "SA32-0L",
+                      "kind": "angleBeam",
+                      "wedgeAngleDeg": 0
+                    },
+                    "position": {
+                      "uOffsetMm": 0,
+                      "vOffsetMm": 41.6,
+                      "skewDeg": 90,
+                      "surface": "Top"
+                    }
+                  }
+                ],
+                "techniqueParams": {
+                  "lastElement": 63
+                }
+              }
+            ]
+          },
+          "fingerprint": "fp2:0d1822864188b09d6dcff2d0f6b09cf4dea7ff87151ab0faeef42f9c1f210f68",
+          "acquisition": {
+            "groups": [
+              {
+                "groupName": "GR-1",
+                "specGroupIndex": 0,
+                "gainDb": 3,
+                "referenceGainDb": 0,
+                "velocityMps": 2450,
+                "beamCount": 57,
+                "digitizingFrequencyMHz": 100,
+                "tcgEnabled": false,
+                "gates": [
+                  {
+                    "name": "Gate I",
+                    "startUs": -3.27,
+                    "lengthUs": 5.71,
+                    "thresholdPercent": 20,
+                    "geometry": "TrueDepth"
+                  },
+                  {
+                    "name": "Gate A",
+                    "startUs": 3.27,
+                    "lengthUs": 2.45,
+                    "thresholdPercent": 20,
+                    "geometry": "TrueDepth"
+                  }
+                ],
+                "scanQuantity": 1201,
+                "scanResolutionMm": 0.25,
+                "indexQuantity": 57,
+                "indexResolutionMm": 0.5,
+                "calibrations": []
+              }
+            ],
+            "encoder": null,
+            "scanPattern": "OneLineScan"
+          },
+          "summary": "판재 13 mm · 5L64-A32 · +41.6 mm · PA 선형 0°",
+          "warnings": []
+        },
+        "matchedPlanId": null,
+        "newPlanKey": "n1",
+        "nearestPlan": null,
+        "duplicateOf": null,
+        "suggestedSpecimenId": "small flat Al R_0002",
+        "suggestedSpecimenSource": "filename",
+        "suggestedStateTag": null,
+        "suggestedRound": null,
+        "unsupportedReason": null,
+        "errorMessage": null,
+        "warnings": []
+      }
+    ],
+    "newPlans": [
+      {
+        "key": "n1",
+        "fingerprint": "fp2:0d1822864188b09d6dcff2d0f6b09cf4dea7ff87151ab0faeef42f9c1f210f68",
+        "spec": {
+          "specVersion": 2,
+          "specimen": {
+            "shape": "plate",
+            "thicknessMm": 13,
+            "outerRadiusMm": null,
+            "angularOpeningDeg": null,
+            "materialName": "Polyethylene",
+            "weld": null
+          },
+          "groups": [
+            {
+              "technique": "PA",
+              "formation": "linear",
+              "firstElement": 0,
+              "aperture": 8,
+              "elementStep": 1,
+              "refractedAngle": {
+                "startDeg": 0,
+                "stopDeg": 0,
+                "stepDeg": null
+              },
+              "focusing": {
+                "mode": "TrueDepth",
+                "distanceMm": 5
+              },
+              "waveMode": "Longitudinal",
+              "probes": [
+                {
+                  "role": "pulseEcho",
+                  "probe": {
+                    "model": "5L64-A32",
+                    "kind": "phasedArrayLinear",
+                    "centralFrequencyMHz": 5,
+                    "elementCount": 64,
+                    "pitchMm": 0.5
+                  },
+                  "orientation": "Normal",
+                  "wedge": {
+                    "model": "SA32-0L",
+                    "kind": "angleBeam",
+                    "wedgeAngleDeg": 0
+                  },
+                  "position": {
+                    "uOffsetMm": 0,
+                    "vOffsetMm": 41.6,
+                    "skewDeg": 90,
+                    "surface": "Top"
+                  }
+                }
+              ],
+              "techniqueParams": {
+                "lastElement": 63
+              }
+            }
+          ]
+        },
+        "summary": "판재 13 mm · 5L64-A32 · +41.6 mm · PA 선형 0°",
+        "provisionalPlanId": "SP001",
+        "suggestedName": "13T · 5MHz · SK90",
+        "itemIds": [
+          "i0001"
+        ],
+        "nearestPlan": null
+      }
+    ]
+  }
+}

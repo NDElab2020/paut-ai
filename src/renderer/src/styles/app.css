@@ -1,0 +1,1510 @@
+/*
+ * 앱 화면 배치. tokens.css → components.css 위에 얹는다.
+ * 규칙(PAUT_DESIGN.md 9절): 의미 토큰만 사용, 새 색·새 반경·그림자 만들지 않음.
+ */
+
+/* 도식 빔 색: 데이터 캔버스(어두운 바탕) 위 Electric Blue Light. 라이트·다크 공통 */
+:root {
+  --diagram-beam: var(--palette-electric-blue-light);
+}
+
+/*
+ * 이미지 보기 영상 영역: 테마를 따른다 (사용자 결정 2026-10-06 — 라이트에서 영상만 어두우면 보기 불편).
+ * 라이트는 Cloud Gray 바탕(0 % 흰색 부채꼴과 구분되게 흰색보다 한 단계 어둡게) + 본문 글자색, 다크는 데이터 캔버스와 같다.
+ * 플랜 화면의 단면 도식(.data-canvas)은 그대로 어둡다.
+ */
+:root {
+  --viewer-canvas: var(--palette-cloud-gray);
+  --viewer-canvas-text: var(--text-strong);
+  --viewer-canvas-subtle: var(--text-subtle);
+  --viewer-canvas-line: var(--line-strong);
+}
+
+[data-theme="dark"] {
+  --viewer-canvas: var(--data-canvas);
+  --viewer-canvas-text: var(--data-canvas-text);
+  --viewer-canvas-subtle: var(--data-canvas-subtle);
+  --viewer-canvas-line: var(--data-canvas-subtle);
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  overflow: hidden;
+}
+
+/* ── 골격 보강 ─────────────────────────────────── */
+
+/* 위치 기준 (components.css 는 design/ 원본 사본이라 여기서): 안의 절대 위치 요소(행마다 있는 숨김 체크 라벨 .visually-hidden 등)가
+   body 에 붙어 문서 높이를 늘리면, 입력·스크롤 때 브라우저가 html 을 굴려 앱 전체(상단바·상태줄)가 위로 밀렸다(2026-10-07 화면 점검 —
+   가져오기 표 scrollHeight 1024 > 800). main 스크롤 영역과 체크 줄 안에 묶는다 */
+.main,
+.check {
+  position: relative;
+}
+
+.topbar__search {
+  width: 320px;
+}
+
+.topbar__kbd {
+  position: absolute;
+  font-size: var(--fs-caption);
+  right: 8px;
+  pointer-events: none;
+}
+
+.topbar__search .input:focus ~ .topbar__kbd,
+.topbar__search .input:not(:placeholder-shown) ~ .topbar__kbd {
+  display: none;
+}
+
+.topbar__search input::-webkit-search-cancel-button {
+  cursor: pointer;
+}
+
+.sidebar .nav-item {
+  width: 100%;
+  font-family: inherit;
+}
+
+.sidebar .nav-item[aria-disabled="true"] .nav-item__count {
+  color: var(--text-faint);
+}
+
+.statusbar__path {
+  max-width: 420px;
+}
+
+.module-fill {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.section__title--inline {
+  margin: 0;
+}
+
+.section__title .t-caption {
+  margin-left: var(--sp-2);
+  font-weight: var(--fw-regular);
+}
+
+.loading-line {
+  padding: var(--sp-4) 0;
+}
+
+.break {
+  word-break: break-all;
+}
+
+.btn .icon {
+  margin-left: -2px;
+}
+
+.btn--sm.btn--icon {
+  width: 28px;
+  min-height: 28px;
+}
+
+/* 알림 줄 안쪽 */
+.notice + .notice,
+.notice + .empty,
+.notice + .dropzone,
+.notice + .panel {
+  margin-top: var(--sp-4);
+}
+
+.notice__body {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.notice__detail {
+  margin-top: var(--sp-1);
+  font-size: var(--fs-caption);
+  color: var(--text-subtle);
+}
+
+.notice__detail summary {
+  cursor: pointer;
+}
+
+.notice__detail pre {
+  max-height: 160px;
+  margin: var(--sp-1) 0 0;
+  overflow: auto;
+  white-space: pre-wrap;
+}
+
+/* ── 스캔플랜별 데이터 ─────────────────────────────── */
+
+.plans {
+  display: grid;
+  grid-template-columns: var(--w-master) minmax(0, 1fr);
+  gap: var(--sp-5);
+  flex: 1;
+  min-height: 0;
+}
+
+.plans__list,
+.plans__detail {
+  min-height: 0;
+  overflow: auto;
+}
+
+.plans__list {
+  padding-right: var(--sp-1);
+}
+
+.plans__detail {
+  container-type: inline-size;
+  padding: 0 var(--sp-1) var(--sp-6) var(--sp-1);
+}
+
+.plans__list-head {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  margin-bottom: var(--sp-1);
+  padding: 0 var(--sp-3);
+  background: var(--bg);
+}
+
+.plan-item {
+  outline-offset: -2px;
+}
+
+/* 플랜 목록 묶음: 두께 구간 → 주파수 → 스큐. 구분은 여백·들여쓰기·글자 크기로만 (선·그림자·파랑 없음) */
+.plan-tree {
+  gap: var(--sp-4);
+}
+
+.plan-tier__toggle {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  width: 100%;
+  min-height: var(--h-control);
+  padding: 0 var(--sp-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-strong);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+  outline-offset: -2px;
+  transition: var(--transition-color);
+}
+
+.plan-tier__toggle:hover {
+  background: var(--surface-hover);
+}
+
+.plan-tier__toggle .icon {
+  color: var(--text-subtle);
+}
+
+.plan-tier__toggle--thickness {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: var(--fw-medium);
+}
+
+.plan-tier__toggle--frequency {
+  min-height: 28px;
+  font-size: var(--fs-table);
+  line-height: var(--lh-table);
+  font-weight: var(--fw-medium);
+  color: var(--text);
+}
+
+.plan-tier__label {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+.plan-tier__count {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  font-weight: var(--fw-regular);
+  color: var(--text-subtle);
+}
+
+/* 주파수 머리의 쉐브론이 두께 이름 아래에 오도록 들여쓴다 */
+.plan-tier--frequency {
+  margin-left: var(--sp-4);
+}
+
+.plan-tier--thickness > .plan-tier__body > .plan-tier--frequency {
+  margin-top: var(--sp-1);
+}
+
+.plan-tier--frequency + .plan-tier--frequency {
+  margin-top: var(--sp-3);
+}
+
+/* 스큐 묶음·플랜 항목: 글자가 주파수 이름과 같은 세로줄에 오도록 */
+.plan-skew {
+  margin-left: var(--sp-5);
+}
+
+.plan-skew + .plan-skew {
+  margin-top: var(--sp-2);
+}
+
+.plan-skew__head {
+  padding: var(--sp-1) var(--sp-3) 2px;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  color: var(--text-subtle);
+}
+
+.plan-item__id {
+  font-size: var(--fs-caption);
+  color: var(--text-subtle);
+  font-variant-numeric: tabular-nums;
+}
+
+.plan-item__counts {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.plan-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin-bottom: var(--sp-5);
+}
+
+.plan-head__summary {
+  color: var(--text);
+}
+
+.plan-head__meta {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  color: var(--text-subtle);
+}
+
+.plan-head__stats {
+  display: flex;
+  gap: var(--sp-7);
+  margin-top: var(--sp-3);
+}
+
+.rename {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  min-height: var(--h-control-lg);
+}
+
+.rename--editing {
+  align-items: stretch;
+}
+
+.rename__title {
+  font-size: var(--fs-title);
+  line-height: var(--lh-title);
+  font-weight: var(--fw-medium);
+  color: var(--text-strong);
+}
+
+.rename__input {
+  width: 420px;
+  max-width: 100%;
+  font-size: var(--fs-heading);
+}
+
+/* 데이터 캔버스: 히어로 사진 자리 */
+.plan-canvas {
+  flex-direction: column;
+  align-items: stretch;
+  gap: var(--sp-3);
+  min-height: 0;
+  padding: var(--sp-4) var(--sp-5) var(--sp-6);
+}
+
+.plan-canvas > .diagram,
+.plan-canvas__empty {
+  align-self: center;
+}
+
+.plan-canvas__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--sp-2) var(--sp-4);
+}
+
+.plan-canvas__title {
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+}
+
+.plan-canvas__empty {
+  margin: var(--sp-7) 0;
+  font-size: var(--fs-body);
+  color: var(--data-canvas-subtle);
+}
+
+/* 도식 그룹 선택: 선택은 모노크롬(캔버스 글자색), 파랑은 빔에만 */
+.canvas-groups {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--sp-1) var(--sp-4);
+  margin: 0;
+  padding: 0;
+  border: 0;
+  font-size: var(--fs-table);
+  line-height: var(--lh-table);
+}
+
+.canvas-groups__item {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  color: var(--data-canvas-text);
+}
+
+.canvas-groups__item input {
+  width: 14px;
+  height: 14px;
+  margin: 0;
+  accent-color: var(--data-canvas-text);
+  cursor: pointer;
+}
+
+.canvas-groups__swatch line {
+  stroke: var(--diagram-beam);
+  stroke-width: 2;
+}
+
+.canvas-groups__all {
+  padding: 2px 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  color: var(--data-canvas-subtle);
+  cursor: pointer;
+  transition: color var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+
+.canvas-groups__all:hover {
+  color: var(--data-canvas-text);
+  box-shadow: 0 1px 0 var(--data-canvas-text);
+}
+
+.diagram {
+  width: 100%;
+  max-width: 760px;
+  height: auto;
+  overflow: visible;
+}
+
+.diagram__plate {
+  fill: var(--data-canvas-text);
+  fill-opacity: 0.06;
+  stroke: var(--data-canvas-text);
+  stroke-width: 1.5;
+}
+
+.diagram__weld {
+  fill: var(--data-canvas-text);
+  fill-opacity: 0.12;
+  stroke: var(--data-canvas-text);
+  stroke-width: 1.5;
+  stroke-linejoin: round;
+}
+
+.diagram__line {
+  fill: none;
+  stroke: var(--data-canvas-text);
+  stroke-width: 1.5;
+}
+
+.diagram__beam {
+  fill: var(--diagram-beam);
+  fill-opacity: 0.2;
+  stroke: var(--diagram-beam);
+  stroke-width: 1;
+}
+
+.diagram__wedge {
+  fill: var(--data-canvas-text);
+  fill-opacity: 0.1;
+  stroke: var(--data-canvas-subtle);
+  stroke-width: 1.2;
+}
+
+.diagram__exit {
+  fill: var(--diagram-beam);
+}
+
+.diagram__dim {
+  fill: none;
+  stroke: var(--data-canvas-subtle);
+  stroke-width: 1;
+}
+
+.diagram__text {
+  fill: var(--data-canvas-text);
+  font-family: var(--font-sans);
+  font-size: 12px;
+}
+
+.diagram__text--dim {
+  fill: var(--data-canvas-subtle);
+}
+
+/* 셋업 요약 면 4개 */
+.setup-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: var(--sp-4);
+}
+
+@container (max-width: 560px) {
+  .setup-grid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.setup-panel__title {
+  margin-bottom: var(--sp-3);
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: var(--fw-medium);
+  color: var(--text-strong);
+}
+
+.setup-panel__group + .setup-panel__group {
+  margin-top: var(--sp-4);
+}
+
+.setup-panel__caption {
+  margin-bottom: var(--sp-2);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  font-weight: var(--fw-medium);
+  color: var(--text-subtle);
+}
+
+.setup-panel__note {
+  margin-top: var(--sp-3);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  color: var(--text-subtle);
+}
+
+/* 시편별 파일 표 */
+.files-table tbody tr[data-row] {
+  cursor: pointer;
+}
+
+.files-table tbody tr[data-row]:focus-visible {
+  outline-offset: -2px;
+}
+
+.group-row td {
+  height: auto;
+  padding-top: var(--sp-4);
+  padding-bottom: var(--sp-2);
+  border-bottom-color: var(--line-strong);
+}
+
+.table tbody tr.group-row:hover td {
+  background: transparent;
+}
+
+.group-row td > * + * {
+  margin-left: var(--sp-2);
+}
+
+.group-row__id {
+  color: var(--text-strong);
+  font-weight: var(--fw-medium);
+}
+
+.group-row__meta {
+  font-size: var(--fs-caption);
+  color: var(--text-subtle);
+}
+
+.file-cell {
+  max-width: 320px;
+}
+
+.file-cell__name,
+.file-cell__device {
+  display: block;
+}
+
+.file-cell__name {
+  color: var(--text-strong);
+  font-weight: var(--fw-medium);
+}
+
+.file-cell__device {
+  font-size: var(--fs-caption);
+  color: var(--text-subtle);
+}
+
+.files-table td,
+.preview-table td {
+  padding-top: var(--sp-1);
+  padding-bottom: var(--sp-1);
+}
+
+.tag-row {
+  flex-wrap: nowrap;
+  gap: var(--sp-1);
+}
+
+@container (max-width: 680px) {
+  .col-opt {
+    display: none;
+  }
+}
+
+/* 표 안 상세(펼침) 행 */
+.table tbody tr.detail-row td,
+.table tbody tr.detail-row:hover td {
+  height: auto;
+  padding: var(--sp-4);
+  background: var(--surface);
+  white-space: normal;
+}
+
+.file-detail__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-3);
+}
+
+.file-detail__title {
+  flex: 1;
+  min-width: 0;
+  font-size: var(--fs-body);
+  font-weight: var(--fw-medium);
+  color: var(--text-strong);
+}
+
+/* 파일 행 끝 '이미지로 보기' 버튼: 행 높이 안에 들어가는 아이콘 버튼. 행 호버·선택 바탕 위에서만 보여도 되지만 처음 쓰는 사람을 위해 항상 보인다 */
+.files-table .col-action {
+  width: 40px;
+  padding-top: 0;
+  padding-bottom: 0;
+  text-align: right;
+}
+
+.files-table .row-open {
+  height: 28px;
+  width: 28px;
+  color: var(--text-subtle);
+}
+
+.files-table tr:hover .row-open,
+.files-table tr[aria-selected="true"] .row-open {
+  color: var(--text-strong);
+}
+
+/* ── 가져오기 ─────────────────────────────────── */
+
+.import-drop {
+  min-height: 280px;
+}
+
+.dropzone__actions {
+  display: flex;
+  gap: var(--sp-2);
+  margin-top: var(--sp-4);
+}
+
+.working {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-4);
+  max-width: 760px;
+}
+
+.working .panel__title {
+  margin: 0;
+}
+
+.working__actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.import-preview > .notice {
+  margin-top: var(--sp-4);
+}
+
+/* 정리 미리보기: 플랜별 목적지 면 (선 대신 면과 여백으로 구분) */
+.plan-dests {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+}
+
+.plan-dest {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-4) var(--sp-5);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+}
+
+.plan-dest__head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  min-width: 0;
+}
+
+.plan-dest__id {
+  font-size: var(--fs-heading);
+  line-height: var(--lh-heading);
+  font-weight: var(--fw-medium);
+  color: var(--text-strong);
+}
+
+.plan-dest__name {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+  color: var(--text);
+}
+
+.plan-dest__name--edit {
+  flex: 1;
+  max-width: 520px;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 2px;
+}
+
+.plan-dest__rename {
+  font-size: var(--fs-table);
+}
+
+.plan-dest__count {
+  font-size: var(--fs-table);
+  color: var(--text-subtle);
+}
+
+.plan-dest__specimens {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1) var(--sp-2);
+}
+
+.plan-dest__specimens > .t-caption:first-child {
+  margin-right: var(--sp-1);
+}
+
+.plan-dest .tag {
+  background: var(--bg);
+}
+
+.plan-dest__diff summary,
+.preview-details > summary {
+  cursor: pointer;
+  width: fit-content;
+  color: var(--text-subtle);
+  transition: color var(--dur) var(--ease);
+}
+
+.plan-dest__diff summary {
+  font-size: var(--fs-table);
+}
+
+.plan-dest__diff summary:hover,
+.preview-details > summary:hover {
+  color: var(--text-strong);
+}
+
+.plan-dest__diff .table-wrap {
+  margin-top: var(--sp-2);
+}
+
+.plan-dest__diff .table th {
+  background: var(--surface);
+}
+
+.skip-line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: var(--sp-1) var(--sp-3);
+  margin-top: var(--sp-4);
+  font-size: var(--fs-table);
+}
+
+.preview-details {
+  margin-top: var(--sp-5);
+}
+
+.preview-details > summary {
+  font-weight: var(--fw-medium);
+}
+
+.preview-details__body {
+  margin-top: var(--sp-3);
+}
+
+.cell-field {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px 0;
+}
+
+.cell-field .status,
+.cell-field .t-caption,
+.cell-field .field__error {
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+}
+
+.cell-input {
+  width: 168px;
+  font-size: var(--fs-table);
+}
+
+.cell-input--tag {
+  width: 104px;
+}
+
+.reason {
+  max-width: 280px;
+}
+
+.reason__text {
+  display: -webkit-box;
+  overflow: hidden;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow-wrap: anywhere;
+}
+
+.reason__warn {
+  display: block;
+  margin-top: 2px;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  color: var(--accent-text);
+  /* 표 칸은 줄바꿈 없음이라, 긴 OPD 경고가 칸 밖으로 넘쳐 표 전체에 가로 스크롤이 생겼다 — 사유 칸 폭 안에서 줄을 바꾼다 */
+  white-space: normal;
+  word-break: keep-all;
+  overflow-wrap: anywhere;
+}
+
+/* 최소 창(1280)에서 판정 표가 넘치지 않게: 좁으면 입력란과 사유 칸을 줄인다 (설계 8절: 가로 스크롤은 마지막 수단) */
+.preview-table {
+  container-type: inline-size;
+}
+
+@container (max-width: 1080px) {
+  .preview-table .cell-input {
+    width: 128px;
+  }
+
+  /* 'Cap on'·'Cap off' 끝 글자가 잘리지 않는 폭 (약 10ch) — 사유 칸을 그만큼 줄여 표 폭은 그대로 */
+  .preview-table .cell-input--tag {
+    width: 96px;
+  }
+
+  .preview-table .reason {
+    max-width: 198px;
+  }
+
+  .preview-table .file-cell__name {
+    max-width: 200px;
+  }
+}
+
+.preview-table tr.is-excluded td {
+  color: var(--text-faint);
+}
+
+.preview-table tr.is-excluded .file-cell__name {
+  color: var(--text-subtle);
+}
+
+/* 확정 막대: 본문 아래에 붙어 따라온다 */
+.commit-bar {
+  position: sticky;
+  bottom: calc(-1 * var(--sp-6));
+  z-index: var(--z-sticky);
+  display: flex;
+  align-items: center;
+  gap: var(--sp-5);
+  margin: var(--sp-5) calc(-1 * var(--sp-6)) calc(-1 * var(--sp-6));
+  padding: var(--sp-3) var(--sp-6);
+  border-top: 1px solid var(--line);
+  background: var(--bg);
+}
+
+.commit-bar__text {
+  flex: 1;
+  min-width: 0;
+}
+
+.commit-bar__main {
+  color: var(--text-strong);
+  font-weight: var(--fw-medium);
+}
+
+.commit-bar__sub {
+  font-size: var(--fs-table);
+  color: var(--text-subtle);
+}
+
+.commit-bar__checks {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+  font-size: var(--fs-table);
+}
+
+.commit-bar__checks:empty {
+  display: none;
+}
+
+.import-result {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-5);
+}
+
+.result-stats {
+  display: flex;
+  align-items: flex-end;
+  gap: var(--sp-7);
+}
+
+.result-plans {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  color: var(--text-subtle);
+}
+
+.result-file {
+  max-width: 280px;
+}
+
+/* ── 가져오기 이력 ─────────────────────────────── */
+
+.history-table tbody tr {
+  cursor: pointer;
+}
+
+.history-src {
+  max-width: 360px;
+}
+
+.history-items {
+  gap: var(--sp-2);
+}
+
+/* ── 설정 ─────────────────────────────────────── */
+
+.settings {
+  max-width: 760px;
+}
+
+.settings__panel + .settings__panel {
+  margin-top: var(--sp-5);
+}
+
+.settings__actions {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-top: var(--sp-4);
+}
+
+.settings__radios {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-3);
+}
+
+.settings__radio {
+  align-items: baseline;
+}
+
+.settings__network {
+  margin-top: var(--sp-4);
+  background: var(--bg);
+}
+
+.panel .notice {
+  background: var(--bg);
+}
+
+/* 고정폭 숫자지만 왼쪽 정렬 (날짜·시각 열) */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+/* 면 위의 보조 버튼은 면과 같은 색이 되므로 바탕색으로 (면 위에 면을 겹치지 않음) */
+.panel .btn--secondary {
+  background: var(--bg);
+}
+
+.panel .btn--secondary:hover:not(:disabled) {
+  background: var(--surface-selected);
+}
+
+/* 표 머리 둘째 줄 (예: 게인 열의 그룹 순서) */
+.th-sub {
+  display: block;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  font-weight: var(--fw-regular);
+  color: var(--text-subtle);
+}
+
+/* 드롭존(면) 위의 보조 버튼도 바탕색으로 — 면과 같은 색이면 버튼으로 보이지 않는다 */
+.dropzone .btn--secondary {
+  background: var(--bg);
+}
+
+.dropzone .btn--secondary:hover:not(:disabled) {
+  background: var(--surface-selected);
+}
+
+/* 포커스 이동용 제목(tabindex=-1)은 조작 요소가 아니므로 링을 그리지 않는다 */
+[tabindex='-1']:focus {
+  outline: none;
+}
+
+/* 저장소 점검 알림 */
+.maintenance {
+  margin-bottom: var(--sp-5);
+}
+
+.maintenance__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding-left: var(--sp-4);
+  list-style: disc;
+}
+
+/* ── 이미지 보기 (OmniPC A-C-S) ───────────────────── */
+
+/* 넓은 영상 화면: 사이드바를 접는다 (계획 결정 8) */
+.app--wide {
+  grid-template-columns: 0 minmax(0, 1fr);
+}
+
+.app--wide .sidebar {
+  display: none;
+}
+
+.app--wide .main {
+  padding: var(--sp-3) var(--sp-4) var(--sp-3);
+}
+
+.viewer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  height: 100%;
+  min-height: 0;
+  outline: none;
+}
+
+.viewer__bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  min-width: 0;
+}
+
+.viewer__title {
+  /* 상태 표시가 여럿 떠도 제목이 사라지지 않게 */
+  min-width: 160px;
+  max-width: 420px;
+  font-size: var(--fs-heading);
+  line-height: var(--lh-heading);
+}
+
+.viewer__meta {
+  font-size: var(--fs-table);
+  color: var(--text-subtle);
+  white-space: nowrap;
+}
+
+.viewer__reason {
+  display: block;
+}
+
+/* 볼 수 없는 그룹·화면 설정 경고: 있을 때만, 이유까지 보이게 */
+.viewer__notes {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  /* 상태 라벨(.status, Table 13px)과 같은 크기로 — 메시지와 라벨이 baseline 으로 나란히 */
+  font-size: var(--fs-table);
+  line-height: var(--lh-table);
+  color: var(--text-subtle);
+}
+
+.viewer__notes p {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  margin: 0;
+}
+
+.viewer__notes .status {
+  flex: none;
+}
+
+/* 그룹 고르기: 한 줄 버튼 묶음 */
+.seg {
+  display: inline-flex;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.seg__item {
+  height: calc(var(--h-control) - 4px);
+  padding: 0 var(--sp-3);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-subtle);
+  font: inherit;
+  /* 버튼·탭은 Label 14px (옆 고스트 버튼과 같은 크기) */
+  font-size: var(--fs-body);
+  white-space: nowrap;
+  cursor: pointer;
+  transition: var(--transition-color);
+}
+
+.seg__item:hover {
+  color: var(--text-strong);
+}
+
+.seg__item[aria-checked="true"] {
+  background: var(--surface-raised);
+  /* 다크는 면과 바탕이 같은 색이라 다른 올린 면처럼 1px 테두리 (라이트는 투명) */
+  box-shadow: inset 0 0 0 1px var(--surface-line);
+  color: var(--text-strong);
+  font-weight: var(--fw-medium);
+}
+
+.seg__item:focus-visible {
+  outline: var(--focus-width) solid var(--focus-ring);
+  outline-offset: 0;
+}
+
+/* 영상 영역: 테마를 따르는 바탕 (토큰은 파일 위쪽) */
+.viewer__body.data-canvas {
+  background: var(--viewer-canvas);
+  color: var(--viewer-canvas-text);
+  flex: 1;
+  display: grid;
+  grid-template-columns: 220px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 11fr) minmax(0, 9fr);
+  grid-template-areas:
+    "ascan sscan"
+    "ascan cscan";
+  align-items: stretch;
+  justify-content: stretch;
+  gap: var(--sp-2);
+  min-height: 0;
+  padding: var(--sp-2) var(--sp-3) var(--sp-2) var(--sp-2);
+}
+
+.viewer__ascan {
+  grid-area: ascan;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.viewer__sscans {
+  grid-area: sscan;
+  display: flex;
+  gap: var(--sp-3);
+  min-height: 0;
+}
+
+.viewer__cscans {
+  grid-area: cscan;
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  min-height: 0;
+}
+
+.viewer__sscans > .vpanel,
+.viewer__cscans > .vpanel {
+  flex: 1 1 0;
+}
+
+.vpanel {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+}
+
+/* 패널 제목: 데이터 캔버스 라벨 규칙(흰 14/500). 왼쪽 여백은 축 칸(.vplot 첫 열 48px)과 맞춘다 */
+.vpanel__head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: 20px;
+  padding-left: 48px;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: var(--fw-medium);
+  color: var(--viewer-canvas-text);
+  white-space: nowrap;
+}
+
+/* 보조 부분(각도·게이트)은 흐리게·400 — 그룹·스캔 종류만 흰 500 */
+.vpanel__head .unit {
+  color: var(--viewer-canvas-subtle);
+  font-weight: var(--fw-regular);
+}
+
+/* 색표 띠: A-scan 진폭 축 바로 위, 축의 % 눈금을 같이 쓴다 */
+.colorbar {
+  display: block;
+  height: 8px;
+  margin-top: var(--sp-1);
+  border-radius: var(--radius-0);
+}
+
+.vplot {
+  flex: 1;
+  display: grid;
+  /* 첫 열 = 왼쪽 축 폭 (Axis.tsx 의 SVG width 와 같아야 함; '10 mm' 눈금이 8px 여백을 남기고 들어가는 폭) */
+  grid-template-columns: 48px minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr) auto;
+  min-height: 0;
+}
+
+.vplot__box {
+  position: relative;
+  min-width: 0;
+  min-height: 0;
+  overflow: hidden;
+  outline: 1px solid transparent;
+}
+
+.vplot.is-active .vplot__box {
+  outline-color: var(--viewer-canvas-subtle);
+}
+
+.vplot__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  cursor: crosshair;
+  touch-action: none;
+}
+
+.vplot__empty {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: var(--fs-caption);
+  color: var(--viewer-canvas-subtle);
+  pointer-events: none; /* 글자가 덮어도 클릭·끌기는 캔버스로 */
+}
+
+.vaxis {
+  overflow: visible;
+}
+
+.vaxis line {
+  stroke: var(--viewer-canvas-subtle);
+}
+
+.vaxis text {
+  fill: var(--viewer-canvas-subtle);
+  font-size: var(--fs-caption);
+  font-variant-numeric: tabular-nums;
+}
+
+.viewer__loading {
+  position: absolute;
+  right: var(--sp-4);
+  bottom: var(--sp-3);
+  font-size: var(--fs-caption);
+  color: var(--viewer-canvas-text);
+}
+
+/* 측정값 줄: 영상 위에 덮지 않고 아래에 (디자인 규칙).
+   높이 고정 한 줄 — 값 길이가 바뀌어 줄이 접히면 영상 칸 높이가 흔들리므로 접지 않고 키 안내만 줄인다 */
+.viewer__readout {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-5);
+  height: calc(var(--lh-table) + 2 * var(--sp-1));
+  min-width: 0;
+  padding: var(--sp-1) var(--sp-2);
+  overflow: hidden;
+  font-size: var(--fs-table);
+  line-height: var(--lh-table);
+}
+
+.viewer__values {
+  flex: none;
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-5);
+  margin: 0;
+  white-space: nowrap;
+}
+
+.viewer__values > div {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+}
+
+/* 키는 .kv dt 와 같은 Table 13px (줄 글자 크기를 그대로 받는다) */
+.viewer__values dt {
+  color: var(--text-subtle);
+}
+
+.viewer__values dd {
+  margin: 0;
+  color: var(--text-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+/* 숫자 자리 폭을 잡아 값이 바뀔 때 옆 항목이 밀리지 않게. 왼쪽 정렬이라 남는 폭은 값 뒤(쌍 사이 24px 쪽)로 가고,
+   키와 값은 늘 8px 로 붙어 있다 (오른쪽 정렬이면 짧은 값이 다음 키 쪽에 붙어 쌍이 뒤집혀 읽힌다) */
+.viewer__values dd.num {
+  min-width: 8ch;
+  text-align: left;
+}
+
+.viewer__values .unit {
+  color: var(--text-subtle);
+}
+
+.viewer__keys {
+  position: relative;
+  flex: 1 1 0;
+  min-width: 0;
+  margin: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-align: right;
+  font-size: var(--fs-caption);
+  color: var(--text-subtle);
+}
+
+.viewer__keys-text {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 키 안내가 들어가는지 재는 숨긴 한 줄 (자리를 차지하지 않고, 바깥으로 넘치지 않게 칸 안에서 잘림) */
+.viewer__keys-measure {
+  position: absolute;
+  left: 0;
+  top: 0;
+  visibility: hidden;
+  pointer-events: none;
+}
+
+.viewer__keys-btn {
+  font-size: var(--fs-caption);
+}
+
+/* 좁을 때 '키 도움말 (?)' 로 펼치는 목록: 영상 위에 떠서 배치·그림 크기는 그대로 (측정값 줄이 overflow: hidden 이라 화면 기준) */
+.viewer__keys-pop {
+  position: fixed;
+  z-index: var(--z-dialog);
+  max-width: min(420px, calc(100vw - 32px));
+  max-height: 60vh;
+  overflow: auto;
+  padding: var(--sp-2) var(--sp-3);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--surface-line);
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  color: var(--text);
+  text-align: left;
+  white-space: normal;
+}
+
+.viewer__keys-pop ul {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.viewer__keys-pop li + li {
+  margin-top: 2px;
+}
+
+/* 그룹이 둘 이상이면 C-scan 두 장이 쌓이므로 S-scan 줄과 반반 (최소 창 1280×800 에서도 C-scan 한 장이 100 px 넘게) */
+.viewer__body--acs.viewer__body--n2.data-canvas,
+.viewer__body--acs.viewer__body--n3.data-canvas {
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+}
+
+/* A-B-C-S: 왼쪽 위 C-scan · 오른쪽 위 S-scan · 왼쪽 아래 B-scan · 오른쪽 아래 A-scan (OmniPC 와 같은 자리) */
+.viewer__body--abcs.data-canvas {
+  grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
+  grid-template-rows: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    "cscan sscan"
+    "bscan ascan";
+}
+
+.viewer__bscan {
+  grid-area: bscan;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+.viewer__bscan > .vpanel {
+  flex: 1 1 0;
+}
+
+/* 조정 패널 (후처리 숫자 입력): 도구막대 아래 한 행 32 px, 기본 접힘. 영상 위가 아니라 영상 칸이 그만큼 줄어든다 */
+.viewer__tools {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  height: var(--h-control);
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.viewer__tools-group {
+  font-size: var(--fs-table);
+  color: var(--text-subtle);
+}
+
+/* 하위 탭(뷰 고르기)은 한 단계 작게 */
+.seg--sub .seg__item {
+  font-size: var(--fs-table);
+  padding: 0 var(--sp-2);
+}
+
+.viewer__field {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  font-size: var(--fs-table);
+  color: var(--text-subtle);
+}
+
+.viewer__field-label {
+  white-space: nowrap;
+}
+
+.viewer__pair {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.input--num {
+  width: 7ch;
+  min-height: 28px;
+  padding: 0 var(--sp-2);
+  text-align: right;
+  font-size: var(--fs-table);
+}
+
+.viewer__sep {
+  width: 1px;
+  height: 20px;
+  background: var(--line-strong);
+}
+
+.viewer__check {
+  font-size: var(--fs-table);
+  color: var(--text);
+}
+
+.viewer__tools .btn {
+  min-height: 28px;
+  padding: 0 var(--sp-3);
+  font-size: var(--fs-table);
+}
+
+/* 눈금자 조작면: 끌기 중 선택 띠(눈금자 안에서만), 게이트 다이아몬드(빨강 — 데이터 표시 예외) */
+.vaxis.is-interactive {
+  touch-action: none;
+  user-select: none;
+}
+
+.vaxis__band {
+  fill: var(--line-control);
+  opacity: 0.6;
+}
+
+[data-theme="dark"] .vaxis__band {
+  fill: var(--line-control);
+  opacity: 0.5;
+}
+
+.vaxis__marker {
+  stroke: none;
+}
+
+/* preload 를 읽지 못했을 때 (운영 묶음 — mock 으로 대신 돌지 않는다, api/index.ts) */
+.app-fatal {
+  display: grid;
+  place-items: center;
+  height: 100%;
+  padding: var(--sp-6);
+  color: var(--text-strong);
+  text-align: center;
+}

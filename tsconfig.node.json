@@ -1,0 +1,23 @@
+{
+  "extends": "./tsconfig.base.json",
+  "compilerOptions": {
+    "composite": true,
+    "lib": ["ES2023"],
+    "types": ["node"],
+    "tsBuildInfoFile": "./node_modules/.cache/tsbuildinfo.node"
+  },
+  "include": [
+    "electron.vite.config.ts",
+    "vite.web.config.ts",
+    "vitest.config.ts",
+    "build/**/*.ts",
+    "src/main/**/*.ts",
+    "src/preload/**/*.ts",
+    "src/core/**/*.ts",
+    "src/shared/**/*.ts",
+    "tests/**/*.ts",
+    "src/renderer/src/api/mock.ts",
+    "src/renderer/src/api/mockData.ts",
+    "src/renderer/src/api/mockVolume.ts"
+  ]
+}

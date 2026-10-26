@@ -1,0 +1,839 @@
+/*
+ * 라벨 모드 (계획_라벨링 1b): 도구막대 '라벨' 토글 · 영상 오른쪽 라벨 패널 열 (접기 가능).
+ * 영상(데이터 캔버스) 위에는 아무 UI 도 덮지 않는다 — 라벨 덮개는 영상 캔버스 위에 겹친 그림 전용 캔버스(.vplot__overlay, 포인터를 받지 않음)에
+ * 그린다(viewer/overlay.ts, 라벨 모드에서만). 보통 모드: .viewer__main 안에 영상 칸 하나뿐이라 크기·그림이 지금과 같다.
+ */
+
+/* 라벨 덮개 캔버스: 영상 캔버스와 같은 자리·크기, 누르기·휠은 아래 영상 캔버스가 받는다 */
+.vplot__overlay {
+  pointer-events: none;
+}
+
+/* 라벨 모드 도구막대: 1280 폭에서 칩(대조 전·조정됨·확대)이 넘치면 줄을 바꾼다 (가로 스크롤 없이) */
+.viewer--label .viewer__bar {
+  flex-wrap: wrap;
+  row-gap: var(--sp-1);
+}
+
+/* 라벨 모드 이미지 보기: 패널의 저장 버튼이 그 화면의 파란 버튼 하나 — 상단바 '파일 가져오기'는 보조 버튼 모양으로 (디자인 규칙: 파란 버튼 하나) */
+body:has(.viewer--label) .topbar .btn--primary {
+  background: var(--surface);
+  color: var(--text-strong);
+}
+
+body:has(.viewer--label) .topbar .btn--primary:hover:not(:disabled) {
+  background: var(--surface-selected);
+}
+
+.viewer__main {
+  flex: 1;
+  display: flex;
+  gap: var(--sp-2);
+  min-height: 0;
+  min-width: 0;
+}
+
+.viewer__main > .viewer__body.data-canvas {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+/* 켜고 끄는 고스트 버튼 (라벨 모드): 켜짐 = 선택된 면 + 테두리. 파랑은 쓰지 않는다 (주 행동 전용) */
+.viewer__toggle[aria-pressed="true"] {
+  background: var(--surface-selected);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+/* 오른쪽 라벨 패널 열 */
+.label-side {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  width: 288px;
+  min-height: 0;
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  box-shadow: inset 0 0 0 1px var(--surface-line);
+}
+
+.label-side--collapsed {
+  width: 40px;
+  align-items: center;
+  gap: var(--sp-1);
+  padding: var(--sp-1) 0;
+}
+
+.label-side__head {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  height: 40px;
+  padding: 0 var(--sp-1) 0 var(--sp-3);
+}
+
+.label-side__title {
+  margin: 0;
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: var(--fw-medium);
+  color: var(--text-strong);
+}
+
+.label-side__tools {
+  flex: none;
+  padding: 0 var(--sp-3) var(--sp-2);
+}
+
+.label-side__tools .seg {
+  display: flex;
+}
+
+.label-side__tools .seg__item {
+  flex: 1 1 0;
+  padding: 0 var(--sp-1);
+  font-size: var(--fs-table);
+}
+
+.label-side__body {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 0 var(--sp-3) var(--sp-3);
+  font-size: var(--fs-table);
+  line-height: var(--lh-table);
+}
+
+/* 접힌 띠: 펼치기 + 도구 네 개 (세로) */
+.label-side__mini {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 2px;
+  border-radius: var(--radius-sm);
+  background: var(--surface-selected);
+}
+
+.label-side__mini .seg__item {
+  width: 32px;
+  height: 28px;
+  padding: 0;
+  font-size: var(--fs-caption);
+}
+
+/* 패널 안 묶음 (다음 작업자가 채움) */
+.label-panel__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  padding: var(--sp-2) 0;
+  border-top: 1px solid var(--line);
+}
+
+.label-panel__section:first-child {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.label-panel__heading {
+  margin: 0;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  font-weight: var(--fw-medium);
+  color: var(--text-subtle);
+}
+
+.label-panel__row {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  min-width: 0;
+  color: var(--text);
+}
+
+.label-panel__row .num {
+  font-variant-numeric: tabular-nums;
+}
+
+.label-panel__row dt {
+  flex: none;
+  min-width: 64px;
+  color: var(--text-subtle);
+}
+
+.label-panel__row dd {
+  flex: 1;
+  margin: 0;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  /* 숫자 칸(.num 은 nowrap)도 안내 글이 들어가면 접히게 */
+  white-space: normal;
+  color: var(--text-strong);
+}
+
+.label-panel__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.label-panel__item {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-1);
+  min-height: 28px;
+  padding: 0 var(--sp-1);
+  border-radius: var(--radius-sm);
+}
+
+.label-panel__item[aria-current="true"] {
+  background: var(--surface-selected);
+}
+
+.label-panel__item > button:first-child {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-strong);
+  font: inherit;
+  text-align: left;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: pointer;
+}
+
+.label-panel__item .btn {
+  min-height: 24px;
+  padding: 0 var(--sp-2);
+  font-size: var(--fs-table);
+}
+
+.label-panel__field {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  color: var(--text-subtle);
+}
+
+.label-panel__field select {
+  flex: 1;
+  min-height: 28px;
+  font-size: var(--fs-table);
+}
+
+.label-panel__empty {
+  margin: 0;
+  color: var(--text-subtle);
+}
+
+/* ── 패널 내용 (1b 본체: 세트 · 새 기록 · 검토 구간 · 지시 표 · 관측 표 · 형상 에코 · 단축키) ──
+ * 288 px 열 안: 표 글자 13 px, 캡션 12 px (12 px 미만 없음). 파란 버튼은 저장 하나만(.btn--primary), 나머지는 보조·고스트·링크.
+ * 상태는 점 모양 + 글자(.status). 색은 의미 토큰만.
+ */
+.label-panel__headrow {
+  display: flex;
+  align-items: baseline;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.label-panel__aside {
+  margin-left: auto;
+  font-size: var(--fs-caption);
+  color: var(--text-subtle);
+}
+
+.label-panel__aside .btn--link {
+  font-size: var(--fs-caption);
+}
+
+.label-panel__note {
+  margin: 0;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+  color: var(--text-subtle);
+}
+
+h4.label-panel__heading {
+  margin-top: var(--sp-2);
+}
+
+/* 라벨 + 칸 한 줄 */
+.label-field {
+  display: grid;
+  grid-template-columns: 84px minmax(0, 1fr);
+  align-items: center;
+  gap: var(--sp-2);
+  min-width: 0;
+}
+
+.label-field > label {
+  color: var(--text-subtle);
+  font-size: var(--fs-table);
+}
+
+.label-field .select {
+  min-width: 0;
+  width: 100%;
+}
+
+.label-field .select select,
+.label-field .input,
+.label-field .textarea {
+  min-height: 28px;
+  font-size: var(--fs-table);
+}
+
+.label-field .select select {
+  padding-left: var(--sp-2);
+  padding-right: 28px;
+}
+
+.label-field--wide {
+  grid-template-columns: minmax(0, 1fr);
+  gap: 2px;
+}
+
+.label-field__num {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+}
+
+.label-field__num .input--num {
+  width: 7ch;
+}
+
+/* 저장 줄: 패널 아래에 붙어 늘 보인다 (패널이 길어도 '기록 저장'까지 스크롤하지 않게). 문제 목록이 길면 그 안에서 스크롤 */
+.label-save--sticky {
+  position: sticky;
+  /* 스크롤 영역 아래 패딩(--sp-3)만큼 내려 막대 아래 12 px 틈으로 뒤 내용이 비쳐 보이지 않게 (2026-10-07 화면 점검) */
+  bottom: calc(-1 * var(--sp-3));
+  z-index: 1;
+  margin-left: calc(-1 * var(--sp-3));
+  margin-right: calc(-1 * var(--sp-3));
+  padding: var(--sp-2) var(--sp-3);
+  background: var(--surface);
+  box-shadow: 0 -1px 0 var(--line);
+}
+
+.label-save--sticky .label-problems {
+  max-height: 22vh;
+  overflow: auto;
+}
+
+.label-set__actions {
+  margin-top: var(--sp-1);
+}
+
+/* 검수 비교 보기: 세트 글자 (A = 기록 자홍, B = 주황 — canvas.ts labelOverlayColors 와 같은 색) */
+.label-compare__a,
+.label-compare__b {
+  display: inline-block;
+  min-width: 1.6em;
+  padding: 0 4px;
+  border-radius: var(--radius-sm, 4px);
+  font-weight: 600;
+  text-align: center;
+  color: #fff;
+}
+
+.label-compare__a {
+  background: #c0109f;
+}
+
+.label-compare__b {
+  background: #b4530a;
+}
+
+.label-note {
+  min-height: 48px;
+  padding: var(--sp-1) var(--sp-2);
+}
+
+.label-range {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--sp-2);
+}
+
+.label-range .label-field {
+  grid-template-columns: auto minmax(0, 1fr);
+}
+
+/* 패널 안 한 줄 버튼 묶음 (새 기록 | 검토 구간, 구간 종류, 관측 상태) */
+.seg.label-seg {
+  display: flex;
+  min-width: 0;
+  background: var(--surface-selected);
+}
+
+.seg.label-seg .seg__item {
+  flex: 1 1 0;
+  min-width: 0;
+  height: 28px;
+  padding: 0 var(--sp-1);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  font-size: var(--fs-table);
+}
+
+.label-panel__mode {
+  padding: var(--sp-2) 0 0;
+}
+
+/* 찍을 점 목록 칸 */
+.label-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+}
+
+.label-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-1);
+  min-height: 28px;
+  padding: 0 var(--sp-2);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--fs-table);
+  cursor: pointer;
+  transition: var(--transition-color);
+}
+
+.label-chip:hover {
+  border-color: var(--text-subtle);
+}
+
+.label-chip[data-done="true"] {
+  color: var(--text-strong);
+}
+
+.label-chip[aria-pressed="true"] {
+  border-color: var(--text-strong);
+  background: var(--surface-selected);
+  color: var(--text-strong);
+  font-weight: var(--fw-medium);
+}
+
+.label-chip:focus-visible {
+  outline: var(--focus-width) solid var(--focus-ring);
+  outline-offset: 1px;
+}
+
+/* 버튼 줄 (패널 안은 28 px, 13 px) */
+.label-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.label-side__body .label-actions .btn,
+.label-side__body .notice .btn {
+  min-height: 28px;
+  padding: 0 var(--sp-3);
+  font-size: var(--fs-table);
+}
+
+.label-side__body .notice {
+  padding: var(--sp-2) var(--sp-3);
+  font-size: var(--fs-table);
+}
+
+.label-notice,
+.label-edit {
+  align-items: center;
+}
+
+.label-notice .btn--icon {
+  width: 28px;
+}
+
+/* 앱 길이 제안 (비교용): 파랑을 쓰지 않는다 — 앞줄 선만 */
+.label-suggest {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: var(--sp-2);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  box-shadow: inset 2px 0 0 var(--line-strong);
+}
+
+.label-suggest p {
+  margin: 0;
+}
+
+/* 숫자 문단은 자리 맞춤(tabular-nums)만 — .num 의 줄바꿈 없음을 풀어 패널 폭(278 px)을 넘지 않게 (앱 제안 줄·장면 미리보기 줄) */
+.label-suggest p.num,
+.label-panel__note.num {
+  white-space: normal;
+}
+
+.label-suggest__title {
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  color: var(--text-subtle);
+}
+
+.label-suggest .btn {
+  align-self: flex-start;
+  min-height: 28px;
+  padding: 0 var(--sp-2);
+  font-size: var(--fs-table);
+}
+
+/* 문제·볼 것 */
+.label-problems {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  font-size: var(--fs-caption);
+  line-height: var(--lh-caption);
+}
+
+.label-problems .status {
+  align-items: flex-start;
+  white-space: normal;
+}
+
+/* 접힌 세부 */
+.label-details > summary {
+  min-height: 28px;
+  padding: var(--sp-1) 0;
+  color: var(--text-strong);
+  font-weight: var(--fw-medium);
+  cursor: pointer;
+}
+
+.label-details[open] {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.label-check {
+  font-size: var(--fs-table);
+  color: var(--text);
+}
+
+/* 지시 표 */
+.label-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  font-size: var(--fs-table);
+  line-height: var(--lh-table);
+  color: var(--text);
+}
+
+.label-table th {
+  height: 24px;
+  padding: 0 var(--sp-1);
+  border-bottom: 1px solid var(--line-strong);
+  color: var(--text-subtle);
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  text-align: left;
+  white-space: nowrap;
+}
+
+.label-table td {
+  height: 28px;
+  padding: 0 var(--sp-1);
+  border-bottom: 1px solid var(--line);
+  white-space: nowrap;
+}
+
+.label-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.label-table__kind {
+  max-width: 96px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.label-table tbody tr {
+  cursor: pointer;
+}
+
+.label-table tbody tr:hover td {
+  background: var(--surface-hover);
+}
+
+.label-side .label-table tbody tr:hover td {
+  background: var(--bg);
+}
+
+.label-table tbody tr[aria-selected="true"] td {
+  background: var(--surface-selected);
+  color: var(--text-strong);
+}
+
+.label-table tbody tr:focus-visible {
+  outline: var(--focus-width) solid var(--focus-ring);
+  outline-offset: -2px;
+}
+
+.label-table tbody tr.is-editing td:first-child {
+  box-shadow: inset 2px 0 0 var(--text-strong);
+}
+
+.label-table__mark {
+  color: var(--accent-text);
+}
+
+/* 고른 기록 */
+.label-detail {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin-top: var(--sp-2);
+  padding: var(--sp-2);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+}
+
+.label-detail__title {
+  margin: 0;
+  color: var(--text-strong);
+  font-weight: var(--fw-medium);
+}
+
+.label-flags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-1);
+  font-size: var(--fs-caption);
+}
+
+/* 관측 표 */
+.label-obs {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.label-obs__group {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label-obs__gname {
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-medium);
+  color: var(--text-subtle);
+}
+
+.label-obs__row {
+  display: grid;
+  /* 이름 칸 'L2 60 %' (최대 %FSH 는 표 제목에 한 번) — 1280 폭 패널(278 px)에서도 잘리지 않게 */
+  grid-template-columns: 64px minmax(0, 1fr) 40px;
+  align-items: center;
+  gap: var(--sp-1);
+  min-height: 28px;
+}
+
+.label-obs__name {
+  font-size: var(--fs-caption);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.label-obs__row > .status {
+  font-size: var(--fs-caption);
+}
+
+.seg.label-seg.label-obs__seg .seg__item {
+  height: 24px;
+  font-size: var(--fs-caption);
+}
+
+.label-obs__blocked {
+  font-size: var(--fs-caption);
+  color: var(--text-subtle);
+}
+
+/* 한 줄 목록 (검토 구간·형상 에코 후보) */
+.label-rows {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.label-rows__item {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1);
+  min-height: 28px;
+}
+
+/* 저장한 검토 구간 '지우기' 한 줄 확인 — 그 행 아래 한 줄을 다 쓴다 */
+.label-rows__confirm {
+  flex: 1 0 100%;
+}
+
+.label-rows__item--col {
+  flex-direction: column;
+  align-items: stretch;
+  padding: var(--sp-1) 0;
+  border-bottom: 1px solid var(--line);
+}
+
+.label-rows__text {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+  /* .num 의 nowrap 을 풀어 버튼 밑으로 넘치지 않게 */
+  white-space: normal;
+}
+
+.label-rows__link {
+  padding: 0;
+  border: 0;
+  background: none;
+  color: var(--text-strong);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.label-rows__link:hover {
+  text-decoration: underline;
+}
+
+.label-rows__item > .btn {
+  min-height: 24px;
+  padding: 0 var(--sp-2);
+  font-size: var(--fs-table);
+}
+
+.label-echo-edit {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+/* 세트 */
+.label-set__line {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1);
+  margin: 0;
+}
+
+.label-set__form {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.label-set__list {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.label-set__item {
+  min-height: 28px;
+  padding: 0 var(--sp-2);
+  border: 0;
+  border-radius: var(--radius-sm);
+  background: transparent;
+  color: var(--text-strong);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.label-set__item:hover {
+  background: var(--bg);
+}
+
+.label-set__item[aria-current="true"] {
+  background: var(--surface-selected);
+  font-weight: var(--fw-medium);
+}
+
+/* 단축키 표 */
+.label-keys {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  margin: 0;
+}
+
+.label-keys__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 2px;
+}
+
+.label-keys__row dt {
+  margin: 0;
+}
+
+.label-keys__row dd {
+  margin: 0;
+  color: var(--text);
+}
+
+.label-keys__key {
+  display: inline-flex;
+  align-items: center;
+  min-height: 20px;
+  padding: 0 var(--sp-1);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--text-strong);
+  font-size: var(--fs-caption);
+}
+
+.label-side__body[hidden] {
+  display: none;
+}
+
+/* 패널(면) 위 보조 버튼: 면과 같은 바탕이라 바탕·테두리로 구분 (파랑 아님) */
+.label-side .btn--secondary {
+  background: var(--bg);
+  box-shadow: inset 0 0 0 1px var(--line-strong);
+}
+
+.label-side .btn--secondary:hover:not(:disabled) {
+  background: var(--surface-selected);
+}
+
+.label-rows__sub {
+  display: flex;
+  margin-top: 2px;
+  font-size: var(--fs-caption);
+}

@@ -1,0 +1,35 @@
+{
+  "_설명": "OmniPC 6.6.0 화면에서 사람이 읽은 값만 둔다 (우리 계산값 아님). 출처: OPD_조사/3_화면대조.md 1.2·4절. 허용오차는 계획 결정 6: 위치 ±0.5 mm, A% ±0.1 %p, 각도 정확히, 스캔 반 칸 안.",
+  "screenshot": "05_제안서이미지/04_검사결과/OmniPC_인천_SEC25-2.png",
+  "screenshotSize": [2576, 1408],
+  "file": "03_라벨미확인/인천지사/SEC25-2/200_dh_91_029_uh1_S25-2 sr1_01.opd",
+  "sha256Prefix": "e0fce60100f4e398",
+  "omnipcVersion": "6.6.0",
+  "layout": "A-B-C-S",
+  "group": "PA 1",
+  "data": { "gainDb": 6.0, "refDb": 31.5, "autoPct": 80.0, "_설명": "DATA 패널 Gain · Ref · Auto, 머리줄에 'WS TCG' 표시" },
+  "cursor": { "scanMm": 114.15, "angleDeg": 39 },
+  "readings": {
+    "aPercent": 4.9,
+    "daMm": null,
+    "viaMm": null,
+    "adbaDb": -18.25,
+    "_설명": "DA^·ViA^ 는 화면에 ND (게이트 A 최대가 문턱 아래). AdBA 기준 진폭(40 %)은 파일에서 아직 못 찾음"
+  },
+  "screen": {
+    "_설명": "눈금 픽셀로 잰 값 (3_화면대조 1.2절)",
+    "gateADepthMm": [4.47, 20.44],
+    "gateAThresholdPct": 20,
+    "_gateAThresholdPct": "A-scan 진폭 눈금 위 빨간 다이아몬드 (20 %)",
+    "beamLine": { "startVDepthMm": [-27.9, 1.16], "endVDepthMm": [-1.9, 33.4], "exitVAtDepth0Mm": -28.9, "angleDeg": 39.0 },
+    "gateAPeak": { "pct": 4.81, "unfoldedDepthMm": 18.9 },
+    "cscanAxes": { "scanMm": [0, 800], "angleDeg": [35, 70] }
+  },
+  "cscan": {
+    "_설명": "캡처 C-scan 영상 상자 [x0, y0, x1, y1) 원본 픽셀 (화면 경계 색이 바뀌는 곳으로 잼, 2026-10-07). 가로 = 스캔 칸 [-0.5, 800.5] mm (눈금 1.962 px/mm, 50 mm 눈금 x 128), 세로 = 빔 36개 칸 (위 70°, 아래 35° — 첫 빔이 아래). 커서 = 파란 선 가운데 픽셀",
+    "imageBoxPx": [29, 230, 1601, 782],
+    "scanCellsMm": [-0.5, 800.5],
+    "firstBeamAtBottom": true,
+    "cursorPx": [253.5, 712.5]
+  }
+}

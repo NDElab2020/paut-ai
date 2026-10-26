@@ -1,0 +1,37 @@
+{
+  "_설명": "OmniPC 6.6.0 화면에서 사람이 읽은 값만 둔다 (우리 계산값 아님). 출처: OPD_조사/3_화면대조.md 1.2·4절. 허용오차는 계획 결정 6: 위치 ±0.5 mm, A% ±0.1 %p, 각도 정확히, 스캔 반 칸 안.",
+  "screenshot": "05_제안서이미지/04_검사결과/OmniPC_TP14_ROOT-L.png",
+  "screenshotSize": [3482, 2098],
+  "file": "02_라벨완료/PCN교육/TP14/TP14-ROOT-L-01.opd",
+  "sha256Prefix": "f705933938feaa3f",
+  "omnipcVersion": "6.6.0",
+  "layout": "A-B-C-S",
+  "group": "PA 1",
+  "data": { "gainDb": 33.6, "autoPct": 80.0, "_설명": "DATA 패널 Gain·Auto (Ref 표시 없음)" },
+  "cursor": { "scanMm": 278.03, "angleDeg": 65 },
+  "readings": {
+    "aPercent": 32.3,
+    "daMm": 22.45,
+    "viaMm": 2.21,
+    "adbaDb": 10.18,
+    "_설명": "오른쪽 측정 패널 A% · DA^(접은 깊이) · ViA^(인덱스 위치) · AdBA. AdBA 기준 진폭(10 %)은 파일에서 아직 못 찾음"
+  },
+  "screen": {
+    "_설명": "눈금 픽셀로 잰 값 (3_화면대조 1.2절)",
+    "gateADepthMm": [15.97, 54.9],
+    "gateAThresholdPct": 10,
+    "_gateAThresholdPct": "A-scan 진폭 눈금 위 빨간 다이아몬드 (약 10 %, 눈으로 읽음)",
+    "skipMm": { "B0": 25.0, "T1": 50.0 },
+    "beamLine": { "startVDepthMm": [-28.7, 13.19], "endVDepthMm": [37.06, 43.83], "exitVAtDepth0Mm": -57.0, "angleDeg": 65.02 },
+    "ascanPeak": { "pct": 32.1, "unfoldedDepthMm": 27.46 },
+    "ascanSecondPeak": { "pct": 21.4, "unfoldedDepthMm": 26.07 },
+    "cscanAxes": { "scanMm": [0, 300], "angleDeg": [44.5, 70.5] }
+  },
+  "cscan": {
+    "_설명": "캡처 C-scan 영상 상자 [x0, y0, x1, y1) 원본 픽셀 (화면 경계 색이 바뀌는 곳으로 잼, 2026-10-07). 가로 = 스캔 칸 [-0.5, 300.5] mm (눈금 6.76 px/mm, 0 mm 눈금 x 61.0), 세로 = 빔 26개 칸 (위 70°, 아래 45° — 첫 빔이 아래). 커서 = 파란 선 가운데 픽셀",
+    "imageBoxPx": [58, 460, 2092, 1208],
+    "scanCellsMm": [-0.5, 300.5],
+    "firstBeamAtBottom": true,
+    "cursorPx": [1941.5, 618.5]
+  }
+}

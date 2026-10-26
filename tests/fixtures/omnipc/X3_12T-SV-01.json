@@ -1,0 +1,49 @@
+{
+  "_설명": "OmniPC 6.6.0 화면에서 사람이 읽은 값만 둔다 (우리 계산값 아님). 허용오차는 계획 결정 6: 위치 ±0.5 mm, A% ±0.1%p, 각도 정확히, 스캔 반 칸 안.",
+  "screenshot": "05_제안서이미지/04_검사결과/OmniPC_X3_12T-SV-01.png",
+  "screenshotSize": [2576, 1408],
+  "file": "12T-SV-01-Cap on.nde",
+  "layout": "A-C-S (PA)",
+  "groupMode": "Multiple",
+  "groups": ["Skew90", "Skew270"],
+  "cursor": { "scanMm": 38.93, "angleDegGroup0": 54.0, "angleDegGroup1": 55.0 },
+  "readings": {
+    "aPercent": 1.6,
+    "_aPercent": "오른쪽 측정 패널 A% (현재 그룹 Skew90, 게이트 A)"
+  },
+  "ascan": {
+    "_설명": "왼쪽 A-scan (Skew90, 54°). 화면에서 눈으로 읽은 값이라 허용오차를 넓게 둔다",
+    "peakPct": 25,
+    "peakPctTol": 2,
+    "peakDepthMm": 30,
+    "peakDepthTol": 1,
+    "depthAxisMm": [8, 38],
+    "depthAxisTol": 1,
+    "skipLabels": ["B0", "T1", "B2"],
+    "_skipLabels": "12·24·36 mm 스킵선 라벨, 캡처 글자를 8배 확대해 읽음 (바닥 B·표면 T, 번호 = 레그 − 1)"
+  },
+  "gateA": { "depthMm": [7.09, 28.0], "tol": 0.5, "_설명": "S-scan 빨간 점선 (게이트 A 시작·끝 깊이)" },
+  "scanAxisMm": [0, 300],
+  "cscan": { "angleAxisDeg": [40, 70], "firstBeamAtBottom": true },
+  "sscan": {
+    "_설명": "S-scan 패널을 잘라 낸 영역과 그 영역의 mm 배율·원점 (패널 눈금 −25…30 mm, 5…45 mm 로 맞춤). 부채꼴 꼭짓점은 잘라 낸 그림 안의 픽셀 좌표",
+    "pxPerMmV": 15,
+    "pxPerMmDepth": 11.81,
+    "panels": [
+      {
+        "group": 0,
+        "crop": [480, 225, 1500, 800],
+        "vAtLeftMm": -32.87,
+        "depthAtTopMm": 4.21,
+        "corners": {
+          "firstBeamStart": [45, 70],
+          "firstBeamEnd": [550, 540],
+          "lastBeamStart": [250, 3],
+          "lastBeamEnd": [989, 215]
+        }
+      },
+      { "group": 1, "crop": [1507, 225, 2457, 800], "vAtLeftMm": -33.0, "depthAtTopMm": 4.21 }
+    ],
+    "cscanCrop": [522, 795, 2460, 1360]
+  }
+}

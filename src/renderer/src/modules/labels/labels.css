@@ -1,0 +1,760 @@
+/* 라벨 관리 화면 (modules/labels). 토큰만 쓴다 (tokens.css). */
+
+.labels > * + * {
+  margin-top: var(--sp-5);
+}
+
+/* 지금 라벨러 줄 */
+.labels-bar {
+  padding: var(--sp-3) var(--sp-4);
+}
+
+.labels-bar__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+}
+
+.labels-bar__title {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: var(--fw-medium);
+  color: var(--text-strong);
+}
+
+.labels-bar__blind {
+  margin-left: var(--sp-2);
+  font-size: var(--fs-table);
+}
+
+/* 다른 PC 와 합치기 (JSON 가져오기·백업 내보내기) — 두 단추를 한 덩어리로, 자리가 모자라면 함께 다음 줄 오른쪽으로 */
+.labels-bar__json {
+  display: inline-flex;
+  flex-wrap: nowrap;
+  gap: var(--sp-1);
+  margin-left: auto;
+}
+
+.labels-bar__pc .mono {
+  color: var(--text-strong);
+}
+
+.labels-bar__note {
+  margin-top: var(--sp-2);
+}
+
+.labels-bar .notice {
+  margin-top: var(--sp-3);
+  background: var(--bg);
+}
+
+.labels-form {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--sp-3);
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line-strong);
+}
+
+.labels-form .field {
+  width: 180px;
+}
+
+.labels-form__actions {
+  display: flex;
+  gap: var(--sp-2);
+}
+
+.labels-form__hint {
+  flex-basis: 100%;
+}
+
+.labels-busy {
+  color: var(--text-subtle);
+  font-size: var(--fs-table);
+}
+
+/* 엑셀 미리보기 */
+.labels-preview > * + * {
+  margin-top: var(--sp-4);
+}
+
+.labels-preview__kv {
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.labels-subtitle {
+  font-size: var(--fs-body);
+  line-height: var(--lh-body);
+  font-weight: var(--fw-medium);
+  color: var(--text-strong);
+}
+
+.labels-stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-6);
+}
+
+.labels-msgs {
+  margin: var(--sp-1) 0 0;
+  padding-left: var(--sp-5);
+  font-size: var(--fs-table);
+  line-height: var(--lh-table);
+  color: var(--text);
+}
+
+.labels-msgs li + li {
+  margin-top: 2px;
+}
+
+.labels-msgs--error {
+  color: var(--danger-text);
+}
+
+.labels-question {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin: var(--sp-2) 0;
+  font-size: var(--fs-table);
+}
+
+.labels-question .t-caption {
+  max-width: 320px;
+}
+
+/* 표 */
+.labels-file {
+  max-width: 280px;
+}
+
+.labels-plan {
+  max-width: 120px;
+}
+
+.labels-table td.labels-sets-cell {
+  height: auto;
+  padding-top: var(--sp-2);
+  padding-bottom: var(--sp-2);
+  white-space: normal;
+}
+
+.labels-sets {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+}
+
+.labels-set {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-1) var(--sp-2);
+}
+
+.labels-set__who {
+  color: var(--text-strong);
+  font-weight: var(--fw-medium);
+}
+
+.labels-set__counts {
+  color: var(--text-subtle);
+}
+
+.labels-records > div + div {
+  margin-top: var(--sp-2);
+}
+
+.labels-records__head {
+  margin-bottom: var(--sp-2);
+  font-size: var(--fs-table);
+}
+
+/* 펼친 줄·알림 안의 작은 표 */
+.labels-mini {
+  margin-top: var(--sp-2);
+}
+
+.labels-mini th,
+.table tbody tr.detail-row .labels-mini th {
+  position: static;
+  background: transparent;
+}
+
+.labels-mini tbody tr:hover td {
+  background: transparent;
+}
+
+/* 펼친 줄(.detail-row) 안의 작은 표는 바깥 펼친 칸의 여백을 물려받지 않는다 */
+.table tbody tr.detail-row .labels-mini td,
+.table tbody tr.detail-row:hover .labels-mini td {
+  height: var(--h-row-compact);
+  padding: 0 var(--sp-3);
+  white-space: nowrap;
+}
+
+.labels-diff-cell {
+  max-width: 220px;
+}
+
+.labels-choices {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2);
+  margin-top: var(--sp-3);
+  white-space: normal;
+}
+
+/* 충돌 표: 고르기 버튼은 펼친 줄 안에 둔다 (1280 폭에서 가로 스크롤 없이) */
+.labels-conflict-table {
+  table-layout: fixed;
+}
+
+.labels-conflict-table th:nth-child(1) {
+  width: 48px;
+}
+
+.labels-conflict-table th:nth-child(2) {
+  width: 96px;
+}
+
+.labels-conflict-table th:nth-child(4) {
+  width: 110px;
+}
+
+.labels-source {
+  max-width: 220px;
+}
+
+.labels-bulk {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+  margin: var(--sp-2) 0;
+  font-size: var(--fs-table);
+}
+
+.labels-changes > * + * {
+  margin-top: var(--sp-2);
+}
+
+.labels-reason {
+  white-space: normal;
+}
+
+.labels-ack {
+  margin-top: var(--sp-2);
+  font-size: var(--fs-table);
+}
+
+.labels-form__ask {
+  align-self: center;
+  font-size: var(--fs-table);
+}
+
+.labels-conflict__meta {
+  margin: 0;
+}
+
+.labels-export__choices {
+  gap: var(--sp-2);
+}
+
+/* 탭 (파일별 라벨 현황 / 학습 데이터 분할). 아래 간격은 .labels > * + * 가 준다 */
+.labels-tabs {
+  margin-bottom: 0;
+}
+
+/* 학습 데이터 분할 */
+.labels-split > * + * {
+  margin-top: var(--sp-3);
+}
+
+.labels-split .toolbar {
+  margin-bottom: 0;
+}
+
+.labels-split__desc {
+  max-width: 720px;
+}
+
+.labels-split-table .labels-split-select {
+  min-width: 140px;
+}
+
+.labels-split-table .labels-split-select select {
+  min-height: 28px;
+  font-size: var(--fs-table);
+}
+
+.labels-split-log summary {
+  cursor: pointer;
+  font-size: var(--fs-table);
+  color: var(--text-subtle);
+}
+
+/* 학습 데이터 내보내기 대화상자 */
+.labels-train__group {
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.labels-train__group + .labels-train__group {
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line);
+}
+
+.labels-train__group > legend {
+  float: left;
+  width: 100%;
+  margin-bottom: var(--sp-2);
+  padding: 0;
+}
+
+.labels-train__group > legend + * {
+  clear: both;
+}
+
+.labels-train__group > * + *:not(legend) {
+  margin-top: var(--sp-2);
+}
+
+.labels-train__row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-4);
+}
+
+.labels-train__inline {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+}
+
+.labels-train__files {
+  max-height: 188px;
+  border-top: 1px solid var(--line);
+}
+
+.labels-train__files .labels-mini {
+  margin-top: 0;
+}
+
+.labels-train__file {
+  max-width: 190px;
+}
+
+.labels-train .labels-train__set {
+  min-width: 0;
+}
+
+.labels-train .labels-train__set select {
+  max-width: 230px;
+  min-height: 28px;
+  font-size: var(--fs-table);
+}
+
+.labels-split-log__at {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── 검수 탭 (ReviewView · ReviewRows · ReviewFinal · ReviewReport) ── */
+.labels-review > * + * {
+  margin-top: var(--sp-3);
+}
+
+.labels-review__pick {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.labels-review__pick-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-4);
+}
+
+.labels-review__opt {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  font-size: var(--fs-table);
+  color: var(--text-subtle);
+}
+
+.labels-review__opt .select select,
+.labels-review__opt .input {
+  min-height: 28px;
+  font-size: var(--fs-table);
+}
+
+.labels-review__side .select {
+  width: 300px;
+}
+
+.labels-review__side .select select {
+  width: 100%;
+  text-overflow: ellipsis;
+}
+
+.labels-review__num {
+  width: 76px;
+}
+
+.labels-review__files,
+.labels-review__more {
+  font-size: var(--fs-table);
+}
+
+.labels-review__files summary,
+.labels-review__more summary,
+.labels-review__warn summary {
+  cursor: pointer;
+  color: var(--text-subtle);
+}
+
+.labels-review__file-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-1);
+  max-height: 168px;
+  margin-top: var(--sp-2);
+  overflow: auto;
+}
+
+.labels-review__more > * + * {
+  margin-top: var(--sp-2);
+}
+
+.labels-review__hint {
+  max-width: 820px;
+}
+
+.labels-review__stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3) var(--sp-4);
+}
+
+.labels-review__stats .stat__value {
+  font-size: var(--fs-heading);
+}
+
+.labels-review__ctx {
+  margin-top: var(--sp-2);
+}
+
+.labels-review__warn {
+  display: inline;
+}
+
+.labels-review__warn[open] {
+  display: block;
+}
+
+.labels-review__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-3);
+}
+
+.labels-review__filter {
+  min-width: 150px;
+}
+
+.labels-review__filter select {
+  min-height: 28px;
+  font-size: var(--fs-table);
+}
+
+/* 비교 행 표: 1280 × 800 에서 가로 스크롤 없이 (열 폭 고정, A·B 칸은 줄임표) */
+.labels-review-table {
+  table-layout: fixed;
+}
+
+.labels-review-col--x {
+  width: 36px;
+}
+
+.labels-review-col--id {
+  width: 60px;
+}
+
+.labels-review-col--outcome {
+  width: 112px;
+}
+
+.labels-review-col--file {
+  width: 132px;
+}
+
+.labels-review-col--num {
+  width: 64px;
+}
+
+.labels-review-col--type {
+  width: 84px;
+}
+
+.labels-review-col--decide {
+  width: 132px;
+}
+
+.labels-review-col--view {
+  width: 40px;
+}
+
+.labels-review-table td,
+.labels-review-table th {
+  padding-left: var(--sp-2);
+  padding-right: var(--sp-2);
+}
+
+.labels-review-table .status {
+  white-space: nowrap;
+}
+
+.labels-review__choice {
+  min-width: 0;
+  width: 116px;
+}
+
+/* 결정 칸: 선택상자가 칸 폭을 다 쓰므로 '자동'·'틀림' 표시는 아래 줄로 (옆 '영상으로 보기' 칸에 겹치지 않게 — 2026-10-07 화면 점검) */
+.labels-review-table td.labels-review__dec {
+  white-space: normal;
+}
+
+.labels-review__choice select {
+  width: 100%;
+  min-height: 26px;
+  font-size: var(--fs-table);
+}
+
+.labels-review__unit .tag {
+  vertical-align: 1px;
+}
+
+.labels-review__none {
+  padding: var(--sp-3) 0;
+}
+
+.labels-review__detail > * + * {
+  margin-top: var(--sp-3);
+}
+
+.labels-review__sides {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--sp-5);
+}
+
+.labels-review__rec + .labels-review__rec {
+  margin-top: var(--sp-3);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line);
+}
+
+.labels-review__rec-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-2);
+  font-size: var(--fs-table);
+}
+
+.labels-review__kv {
+  row-gap: 2px;
+}
+
+.labels-review__decision {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  gap: var(--sp-3) var(--sp-4);
+  padding-top: var(--sp-3);
+  border-top: 1px solid var(--line-strong);
+}
+
+.labels-review__merge {
+  flex-basis: 100%;
+  min-width: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+.labels-review__merge legend {
+  margin-bottom: var(--sp-2);
+  padding: 0;
+}
+
+.labels-review__merge-row {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-4);
+  min-height: 26px;
+  font-size: var(--fs-table);
+}
+
+.labels-review__merge-name {
+  flex: none;
+  width: 420px;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  color: var(--text);
+}
+
+.labels-review__field {
+  width: 260px;
+}
+
+.labels-review__field--wide {
+  flex: 1;
+  min-width: 260px;
+}
+
+.labels-review__field .field__label,
+.labels-review__reason .field__label,
+.labels-review__hfield .field__label {
+  font-size: var(--fs-caption);
+  font-weight: var(--fw-regular);
+  color: var(--text-subtle);
+}
+
+.labels-review__opts {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: var(--sp-2) var(--sp-4);
+}
+
+/* 확정 미리보기 · 저장 */
+.labels-review__final > * + * {
+  margin-top: var(--sp-3);
+}
+
+.labels-review__final {
+  padding-top: var(--sp-4);
+  border-top: 1px solid var(--line-strong);
+}
+
+.labels-review__counts {
+  font-size: var(--fs-table);
+}
+
+.labels-review__design > * + * {
+  margin-top: var(--sp-2);
+}
+
+.labels-review-design td.truncate {
+  max-width: 220px;
+}
+
+.labels-review__save {
+  display: flex;
+  flex-direction: column;
+  gap: var(--sp-2);
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+  font-size: var(--fs-table);
+}
+
+.labels-review__save .labels-ack {
+  margin-top: 0;
+}
+
+.labels-review__reason {
+  max-width: 720px;
+}
+
+.labels-review__save-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--sp-2);
+}
+
+/* 보고서 */
+.labels-review__report-head {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+}
+
+.labels-review__hform {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--sp-3);
+}
+
+.labels-review__hfield {
+  width: 200px;
+}
+
+.labels-review__hfield .select {
+  width: 100%;
+}
+
+.labels-review__report-kv {
+  padding: var(--sp-3) var(--sp-4);
+  border-radius: var(--radius-sm);
+  background: var(--surface);
+}
+
+.labels-review__report-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: var(--sp-5);
+  align-items: start;
+}
+
+.labels-review__line {
+  font-size: var(--fs-table);
+  line-height: var(--lh-table);
+}
+
+.labels-review__report .labels-mini {
+  margin-top: 0;
+}
+
+.labels-review__notices:empty {
+  display: none;
+}
+
+.labels-review__notices > * + * {
+  margin-top: var(--sp-2);
+}
+
+.labels-review__notices .notice__body {
+  flex: 1;
+  min-width: 0;
+}
+
+/* 면(--surface) 위의 보조 버튼·입력은 면과 같은 색이 되므로 바탕색으로 (app.css .panel 과 같은 규칙) */
+.labels-review__pick .btn--secondary,
+.labels-review__save .btn--secondary {
+  background: var(--bg);
+}
+
+.labels-review__pick .btn--secondary:hover:not(:disabled),
+.labels-review__save .btn--secondary:hover:not(:disabled) {
+  background: var(--surface-selected);
+}

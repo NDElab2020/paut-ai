@@ -1,0 +1,219 @@
+{
+  "description": "기록양식에 미리 채울 값. 열거 칸은 코드로 적고 생성기가 표시 이름으로 바꾼다. '_' 로 시작하는 칸은 메타데이터라 엑셀에 쓰지 않는다. '_partial': true 인 줄은 필수 칸 일부(라벨러 ID 등)를 전문가가 채우도록 비워 둔 줄. '물리결함' 시트는 대조용 양식에만 쓴다(판독자용 = --blind 는 비움).",
+  "sources": {
+    "files": "06_원시데이터/02_라벨완료/X3_12T-SV/*.nde (파일 이름). 두께 12 mm 는 파일 셋업의 시편 두께. 시편 ID 는 앱 가져오기가 장비 원본 파일명(ModelSetup SaveFileName)의 PL 번호로 제안하는 값 (src/core/nde/specimenGuess.ts, tests/core/nde/read.test.ts 의 장비 원본 파일명). 기준점·방향은 확인 전이라 계획.md 7절 가설(스캔 0 mm = 판 끝, 방향 +1)을 '가설 정렬 = 예'로 채운다.",
+    "physical": "06_원시데이터/02_라벨완료/X3_12T-SV/00_결함정보.docx — '파일명' 아래 '종류 - 위치mm' 11줄. 길이·깊이·높이·좌우·기준점 없음. 위치가 결함 중심인지 시작인지 적혀 있지 않음. 확인 수준은 '미확인'(작성자·근거 문서 모름). 지침서 부록의 #01~#11 은 이 줄 순서와 같다."
+  },
+  "sheets": {
+    "reader": [
+      {
+        "_partial": true,
+        "guidelineVersion": "v1",
+        "readerSource": "expert"
+      }
+    ],
+    "file": [
+      {
+        "fileName": "12T-SV-01-Cap on.nde",
+        "specimenId": "PL23833",
+        "datumDescription": "가설: 스캔 0 mm = 판 끝 (확인 전, 계획.md 7절)",
+        "datumUMm": 0,
+        "direction": "+1",
+        "alignmentAssumed": true,
+        "thicknessMm": 12,
+        "note": "장비 원본 파일명 12T-SV-PL23833-i15-CAP20 · Cap on · 시편 ID 는 앱 제안값(장비 원본 파일명의 PL 번호) · 두께는 파일 셋업 값 · 기준점·방향은 가설(확인되면 고치고 '가설 정렬' = 아니오)"
+      },
+      {
+        "fileName": "12T-SV-02-Cap on.nde",
+        "specimenId": "PL23840",
+        "datumDescription": "가설: 스캔 0 mm = 판 끝 (확인 전, 계획.md 7절)",
+        "datumUMm": 0,
+        "direction": "+1",
+        "alignmentAssumed": true,
+        "thicknessMm": 12,
+        "note": "장비 원본 파일명 12T-SV-PL23840-i15-CAP20 · Cap on · 시편 ID 는 앱 제안값(장비 원본 파일명의 PL 번호) · 두께는 파일 셋업 값 · 기준점·방향은 가설(확인되면 고치고 '가설 정렬' = 아니오)"
+      },
+      {
+        "fileName": "12T-SV-03-Cap off.nde",
+        "specimenId": "PL23841",
+        "datumDescription": "가설: 스캔 0 mm = 판 끝 (확인 전, 계획.md 7절)",
+        "datumUMm": 0,
+        "direction": "+1",
+        "alignmentAssumed": true,
+        "thicknessMm": 12,
+        "note": "장비 원본 파일명 12T-SV-PL23841-i15-CAP OFF · Cap off · 시편 ID 는 앱 제안값(장비 원본 파일명의 PL 번호) · 두께는 파일 셋업 값 · 기준점·방향은 가설(확인되면 고치고 '가설 정렬' = 아니오)"
+      },
+      {
+        "fileName": "12T-SV-04-Cap on.nde",
+        "specimenId": "PL23831",
+        "datumDescription": "가설: 스캔 0 mm = 판 끝 (확인 전, 계획.md 7절)",
+        "datumUMm": 0,
+        "direction": "+1",
+        "alignmentAssumed": true,
+        "thicknessMm": 12,
+        "note": "장비 원본 파일명 12T-SV-PL23831-i15-CAP20 · Cap on · 시편 ID 는 앱 제안값(장비 원본 파일명의 PL 번호) · 두께는 파일 셋업 값 · 기준점·방향은 가설(확인되면 고치고 '가설 정렬' = 아니오)"
+      }
+    ],
+    "physical": [
+      {
+        "_docx": {
+          "file": "12T-SV-01-Cap on",
+          "text": "Toe Crack",
+          "positionMm": 38
+        },
+        "specimenId": "PL23833",
+        "physicalDefectId": "D1",
+        "designType": "crack-toe",
+        "designZone": "toe-haz",
+        "centerMm": 38,
+        "source": "none",
+        "confirmation": "unknown",
+        "note": "지침서 부록 #01. 결함정보.docx 원문 'Toe Crack – 38mm'. 출처: X3 결함정보.docx(위치·종류만, 위치가 중심인지 시작인지 미확인). 위치는 '중심' 칸에 임시로 넣음. 작성자·근거 미확인이라 출처 '없음'(정답 계층 없음), 확인 수준 '미확인'."
+      },
+      {
+        "_docx": {
+          "file": "12T-SV-01-Cap on",
+          "text": "Lack of fusion",
+          "positionMm": 135
+        },
+        "specimenId": "PL23833",
+        "physicalDefectId": "D2",
+        "designType": "lof-unspecified",
+        "centerMm": 135,
+        "source": "none",
+        "confirmation": "unknown",
+        "note": "지침서 부록 #02. 결함정보.docx 원문 'Lack of fusion -135mm'. 출처: X3 결함정보.docx(위치·종류만, 위치가 중심인지 시작인지 미확인). 위치는 '중심' 칸에 임시로 넣음. 작성자·근거 미확인이라 출처 '없음'(정답 계층 없음), 확인 수준 '미확인'. 측벽·루트·층간 구분이 없어 설계 종류를 '융합불량 (세부 미상)'으로 둠."
+      },
+      {
+        "_docx": {
+          "file": "12T-SV-01-Cap on",
+          "text": "Side wall crack",
+          "positionMm": 200
+        },
+        "specimenId": "PL23833",
+        "physicalDefectId": "D3",
+        "designType": "crack-sidewall",
+        "designZone": "sidewall",
+        "centerMm": 200,
+        "source": "none",
+        "confirmation": "unknown",
+        "note": "지침서 부록 #03. 결함정보.docx 원문 'Side wall crack -200mm'. 출처: X3 결함정보.docx(위치·종류만, 위치가 중심인지 시작인지 미확인). 위치는 '중심' 칸에 임시로 넣음. 작성자·근거 미확인이라 출처 '없음'(정답 계층 없음), 확인 수준 '미확인'."
+      },
+      {
+        "_docx": {
+          "file": "12T-SV-01-Cap on",
+          "text": "Slag",
+          "positionMm": 240
+        },
+        "specimenId": "PL23833",
+        "physicalDefectId": "D4",
+        "designType": "slag",
+        "centerMm": 240,
+        "source": "none",
+        "confirmation": "unknown",
+        "note": "지침서 부록 #04. 결함정보.docx 원문 'Slag -240mm'. 출처: X3 결함정보.docx(위치·종류만, 위치가 중심인지 시작인지 미확인). 위치는 '중심' 칸에 임시로 넣음. 작성자·근거 미확인이라 출처 '없음'(정답 계층 없음), 확인 수준 '미확인'."
+      },
+      {
+        "_docx": {
+          "file": "12T-SV-02-Cap on",
+          "text": "Root crack",
+          "positionMm": 160
+        },
+        "specimenId": "PL23840",
+        "physicalDefectId": "D1",
+        "designType": "crack-root",
+        "designZone": "root",
+        "centerMm": 160,
+        "source": "none",
+        "confirmation": "unknown",
+        "note": "지침서 부록 #05. 결함정보.docx 원문 'Root crack-160mm'. 출처: X3 결함정보.docx(위치·종류만, 위치가 중심인지 시작인지 미확인). 위치는 '중심' 칸에 임시로 넣음. 작성자·근거 미확인이라 출처 '없음'(정답 계층 없음), 확인 수준 '미확인'."
+      },
+      {
+        "_docx": {
+          "file": "12T-SV-02-Cap on",
+          "text": "Lack of fusion",
+          "positionMm": 220
+        },
+        "specimenId": "PL23840",
+        "physicalDefectId": "D2",
+        "designType": "lof-unspecified",
+        "centerMm": 220,
+        "source": "none",
+        "confirmation": "unknown",
+        "note": "지침서 부록 #06. 결함정보.docx 원문 'Lack of fusion- 220mm'. 출처: X3 결함정보.docx(위치·종류만, 위치가 중심인지 시작인지 미확인). 위치는 '중심' 칸에 임시로 넣음. 작성자·근거 미확인이라 출처 '없음'(정답 계층 없음), 확인 수준 '미확인'. 측벽·루트·층간 구분이 없어 설계 종류를 '융합불량 (세부 미상)'으로 둠."
+      },
+      {
+        "_docx": {
+          "file": "12T-SV-03-Cap off",
+          "text": "Side Wall Crack",
+          "positionMm": 65
+        },
+        "specimenId": "PL23841",
+        "physicalDefectId": "D1",
+        "designType": "crack-sidewall",
+        "designZone": "sidewall",
+        "centerMm": 65,
+        "source": "none",
+        "confirmation": "unknown",
+        "note": "지침서 부록 #07. 결함정보.docx 원문 'Side Wall Crack- 65mm'. 출처: X3 결함정보.docx(위치·종류만, 위치가 중심인지 시작인지 미확인). 위치는 '중심' 칸에 임시로 넣음. 작성자·근거 미확인이라 출처 '없음'(정답 계층 없음), 확인 수준 '미확인'."
+      },
+      {
+        "_docx": {
+          "file": "12T-SV-03-Cap off",
+          "text": "IP",
+          "positionMm": 150
+        },
+        "specimenId": "PL23841",
+        "physicalDefectId": "D2",
+        "designType": "incomplete-penetration",
+        "centerMm": 150,
+        "source": "none",
+        "confirmation": "unknown",
+        "note": "지침서 부록 #08. 결함정보.docx 원문 'IP-150mm' (IP = 용입불량으로 읽음). 출처: X3 결함정보.docx(위치·종류만, 위치가 중심인지 시작인지 미확인). 위치는 '중심' 칸에 임시로 넣음. 작성자·근거 미확인이라 출처 '없음'(정답 계층 없음), 확인 수준 '미확인'."
+      },
+      {
+        "_docx": {
+          "file": "12T-SV-03-Cap off",
+          "text": "Lack of fusion",
+          "positionMm": 250
+        },
+        "specimenId": "PL23841",
+        "physicalDefectId": "D3",
+        "designType": "lof-unspecified",
+        "centerMm": 250,
+        "source": "none",
+        "confirmation": "unknown",
+        "note": "지침서 부록 #09. 결함정보.docx 원문 'Lack of fusion-250mm'. 출처: X3 결함정보.docx(위치·종류만, 위치가 중심인지 시작인지 미확인). 위치는 '중심' 칸에 임시로 넣음. 작성자·근거 미확인이라 출처 '없음'(정답 계층 없음), 확인 수준 '미확인'. 측벽·루트·층간 구분이 없어 설계 종류를 '융합불량 (세부 미상)'으로 둠."
+      },
+      {
+        "_docx": {
+          "file": "12T-SV-04-Cap on",
+          "text": "Root Crack",
+          "positionMm": 160
+        },
+        "specimenId": "PL23831",
+        "physicalDefectId": "D1",
+        "designType": "crack-root",
+        "designZone": "root",
+        "centerMm": 160,
+        "source": "none",
+        "confirmation": "unknown",
+        "note": "지침서 부록 #10. 결함정보.docx 원문 'Root Crack-160' (단위 없음, mm 로 봄). 출처: X3 결함정보.docx(위치·종류만, 위치가 중심인지 시작인지 미확인). 위치는 '중심' 칸에 임시로 넣음. 작성자·근거 미확인이라 출처 '없음'(정답 계층 없음), 확인 수준 '미확인'."
+      },
+      {
+        "_docx": {
+          "file": "12T-SV-04-Cap on",
+          "text": "Porosity",
+          "positionMm": 220
+        },
+        "specimenId": "PL23831",
+        "physicalDefectId": "D2",
+        "designType": "porosity-unspecified",
+        "centerMm": 220,
+        "source": "none",
+        "confirmation": "unknown",
+        "note": "지침서 부록 #11. 결함정보.docx 원문 'Porosity- 220' (단위 없음, mm 로 봄). 출처: X3 결함정보.docx(위치·종류만, 위치가 중심인지 시작인지 미확인). 위치는 '중심' 칸에 임시로 넣음. 작성자·근거 미확인이라 출처 '없음'(정답 계층 없음), 확인 수준 '미확인'. 단독·군집 구분이 없어 설계 종류를 '기공 (단독·군집 미상)'으로 둠."
+      }
+    ]
+  }
+}

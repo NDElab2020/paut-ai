@@ -1,0 +1,42 @@
+appId: kr.co.kdhc.paut.datamanager
+productName: PAUT 데이터 관리
+directories:
+  buildResources: resources
+  output: dist
+files:
+  - out/**/*
+  - package.json
+  - '!**/*.map'
+# h5wasm 의 wasm 은 hdf5_util.js 안에 들어 있어(asar 안에서 동작 확인) asarUnpack 이 필요 없다
+publish: null
+# 설치본에서 ELECTRON_RUN_AS_NODE·NODE_OPTIONS·--inspect 로 앱 밖 코드를 돌리지 못하게
+electronFuses:
+  runAsNode: false
+  enableNodeOptionsEnvironmentVariable: false
+  enableNodeCliInspectArguments: false
+  onlyLoadAppFromAsar: true
+  enableEmbeddedAsarIntegrityValidation: true
+win:
+  target:
+    - target: nsis
+      arch: [x64]
+  artifactName: PAUT-DataManager-${version}-setup.${ext}
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  shortcutName: PAUT 데이터 관리
+# 맥: `npm run dist:mac` (scripts/mac-dist.cjs). 번들 안 이름(실행 파일·헬퍼)은 영문 PAUT-DataManager 로 두고
+# 표시 이름만 한글 — electron-builder 가 한글 이름을 NFD(자모 분해)로 써서 Electron 이 헬퍼 앱을 못 찾아
+# 시작 직후 SIGTRAP 으로 죽는다(2026-10-06 확인). 사용자가 보는 .app 이름은 mac-dist.cjs 가 한글(NFC)로 바꾼다.
+mac:
+  target:
+    - target: dir
+      arch: [arm64]
+  category: public.app-category.productivity
+  artifactName: PAUT-DataManager-${version}-${arch}.${ext}
+  extendInfo:
+    CFBundleDisplayName: PAUT 데이터 관리
+dmg:
+  sign: false
