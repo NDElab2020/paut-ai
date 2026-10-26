@@ -19,7 +19,7 @@ export interface ItemSuggestion {
 
 const stem = (fileName: string): string => (fileName.split(/[\\/]/).pop() ?? fileName).replace(/\.[^.]+$/, '').normalize('NFC')
 
-/** 시편 ID 제안: 장비 원본 파일명의 PL·TP 번호 → 현재 파일명 → 없으면 null */
+/** 시편 ID 제안: 장비 원본 파일명의 PL·TP·TF 번호 → 현재 파일명 → 없으면 null */
 export function suggestSpecimenId(deviceFileName: string | null, sourceFileName: string): SpecimenSuggestion | null {
   const g = suggestSpecimen({ deviceFileName }, sourceFileName)
   return g.specimenId && g.source ? { id: g.specimenId, source: g.source } : null
@@ -44,7 +44,7 @@ export function suggestRound(...names: Array<string | null>): number | null {
 }
 
 /**
- * 가져오기 항목 제안. 시편 ID 패턴(PL·TP)이 없으면 현재 파일명(확장자 제외)을 폴더에 쓸 수 있게 정리해
+ * 가져오기 항목 제안. 시편 ID 패턴(PL·TP·TF)이 없으면 현재 파일명(확장자 제외)을 폴더에 쓸 수 있게 정리해
  * 대체 ID 로 제안한다(출처 'filename'). 사용자는 미리보기에서 고칠 수 있다.
  */
 export function suggestForItem(meta: Pick<NdeFileMeta, 'deviceFileName'> | null, fileName: string): ItemSuggestion {

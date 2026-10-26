@@ -9,6 +9,8 @@ import type {
   FileListPage,
   FileQuery,
   SpecimenPatch,
+  SpecimenRegroupPreview,
+  SpecimenRegroupResult,
   ViewerCscanExportRequest,
   ViewerCscanExportResult,
   ViewerOpenResult
@@ -44,6 +46,8 @@ import { containsSourceData, ensureStoreRoot, resolveStoreLayout, toAbsolutePath
 import { assertExportTarget } from './exportTarget'
 import { createLabelService, type LabelService } from './labels'
 import { maintainStore } from './maintenance'
+import { planSpecimenRegroup, regroupPreviewOf } from './specimenRegroup'
+import { readSplitState } from '../labels/export/split'
 
 export { maintainStore, upgradePlanSpecs, isNoteworthy, isStaleOpdSpec, renormalizeOpdPlan } from './maintenance'
 export { createLabelService, workbookGroupsOf, type LabelService, type LabelServiceDeps } from './labels'
@@ -55,6 +59,11 @@ export interface ServiceOptions {
   /** 테스트용 시계 */
   now?: () => Date
   previewTtlMs?: number
+}
+
+/** 시편 다시 묶기 계산 입력 (파일 이름·물리 결함·학습 분할) */
+function regroupInputs(catalog: Catalog): Parameters<typeof planSpecimenRegroup>[0] {
+  return { files: catalog.listFileIdentities(), physicalDefects: catalog.labels.listPhysicalDefects({}), split: readSplitState(catalog.dbPath) }
 }
 
 export interface AppService {
@@ -71,6 +80,10 @@ export interface AppService {
   listSpecimens(planId?: PlanId): Promise<SpecimenSummary[]>
   getSpecimen(id: SpecimenId): Promise<SpecimenSummary>
   updateSpecimen(id: SpecimenId, patch: SpecimenPatch): Promise<Specimen>
+  /** 파일명을 임시 시편 ID 로 받은 파일을 지금 패턴(PL·TP·TF)으로 다시 묶자는 제안 (specimenRegroup.ts) */
+  previewSpecimenRegroup(): Promise<SpecimenRegroupPreview>
+  /** 고른 파일만 다시 묶는다 (가져오기·라벨 작업 중이면 BUSY). 미리보기를 다시 계산해 막힌 줄은 건너뛴다 */
+  applySpecimenRegroup(fileIds: readonly FileId[]): Promise<SpecimenRegroupResult>
   listFiles(query: FileQuery): Promise<FileListPage>
   getFile(id: FileId): Promise<FileRecord>
   updateFile(id: FileId, patch: FileAnnotationPatch): Promise<FileRecord>
@@ -353,6 +366,24 @@ export function createAppService(opts: ServiceOptions): AppService {
     listSpecimens: async (planId) => (await cat()).listSpecimens(planId),
     getSpecimen: async (id) => (await cat()).getSpecimen(id) ?? notFound(`시편 ${id}`),
     updateSpecimen: async (id, patch) => (await cat()).updateSpecimen(id, patch),
+    previewSpecimenRegroup: async () => regroupPreviewOf(planSpecimenRegroup(regroupInputs(await cat()))),
+    async applySpecimenRegroup(fileIds) {
+      const opId = `regroup-${Date.now()}`
+      lock(opId)
+      try {
+        if (labels.busy()) throw new AppError('BUSY', '라벨 작업 중에는 시편을 다시 묶을 수 없습니다. 끝난 뒤 다시 시도하세요.')
+        const catalog = await cat()
+        const want = new Set(fileIds)
+        const ok = planSpecimenRegroup(regroupInputs(catalog)).items.filter((i) => want.has(i.fileId) && i.blocked === null)
+        const res = catalog.moveFilesToSpecimen(
+          ok.map((i) => ({ fileId: i.fileId, fromSpecimenId: i.fromSpecimenId, toSpecimenId: i.toSpecimenId, toSource: i.toSource })),
+          [...new Set(ok.map((i) => i.fromSpecimenId))]
+        )
+        return { moved: res.moved, skipped: want.size - res.moved, createdSpecimens: res.createdSpecimens, removedSpecimens: res.removedSpecimens }
+      } finally {
+        unlock(opId)
+      }
+    },
     listFiles: async (query) => (await cat()).listFiles(query ?? {}),
     getFile: async (id) => (await cat()).getFile(id) ?? notFound(`파일 #${id}`),
     updateFile: async (id, patch) => (await cat()).updateFile(id, patch),

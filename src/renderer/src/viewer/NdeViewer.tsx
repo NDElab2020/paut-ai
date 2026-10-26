@@ -142,8 +142,9 @@ const LAYOUTS: Array<{ id: Layout; name: string; title: string }> = [
 const TECHNIQUE_NAME: Partial<Record<ViewerTechnique, string>> = { 'pa-sectorial': '섹토리얼', 'pa-linear': '리니어', 'pa-compound': '컴파운드' }
 
 /**
- * 대조 전 표시 이름: NDE 는 (형식, 기법) 'NDE 4.x 섹토리얼', OPD 는 (기법, 스큐) 'OPD 섹토리얼 · 스큐 90'
- * (OPD 는 스큐 270 의 출사점 V 부호가 추정이라 스큐마다 대조한다 — core/nde/viewer/meta.ts VERIFIED)
+ * 대조 전 표시 이름: NDE 는 (형식, 기법) 'NDE 3.x 리니어', OPD 는 (기법, 스큐) 'OPD 섹토리얼 · 스큐 90'
+ * (OPD 는 스큐 270 의 출사점 V 부호가 추정이라 스큐마다 대조한다 — core/nde/viewer/meta.ts VERIFIED).
+ * NDE 4.x 섹토리얼은 스큐 90 만 검증(교차 대조, T3)이라 대조 전이면 스큐를 붙인다 ('NDE 4.x 섹토리얼 · 스큐 270').
  */
 /** A-scan 진폭 축 상한: '200 %'(전체)를 고르면 진폭 눈금 상한이 200 보다 큰 형식(OPD 250 % 추정)은 그 상한으로 — 포화 봉우리가 잘리지 않게 */
 function axisMaxOf(choice: 100 | 200, unitMax: number): number {
@@ -153,8 +154,9 @@ function axisMaxOf(choice: 100 | 200, unitMax: number): number {
 function unverifiedKindName(formatFamily: ViewerFormatFamily, g: ViewerGroup): string {
   if (g.storageMode === 'Paintbrush') return `NDE ${formatFamily} Paintbrush`
   const tech = TECHNIQUE_NAME[g.technique] ?? g.technique
-  if (formatFamily !== 'opd') return `NDE ${formatFamily} ${tech}`
   const skew = g.beams[0]?.skewDeg
+  if (formatFamily === '4.x' && g.technique === 'pa-sectorial' && skew !== undefined) return `NDE 4.x ${tech} · 스큐 ${Math.round(skew)}`
+  if (formatFamily !== 'opd') return `NDE ${formatFamily} ${tech}`
   return skew === undefined ? `OPD ${tech}` : `OPD ${tech} · 스큐 ${Math.round(skew)}`
 }
 
@@ -1022,7 +1024,7 @@ function ViewerBody({
   // 아직 OmniPC 캡처와 맞춰 보지 않은 것들 — 하나의 표시로 모은다
   const unverified: string[] = []
   const unverifiedTitles: string[] = []
-  // 대조 여부는 (형식, 기법, 스큐)마다 (core/nde/viewer/meta.ts VERIFIED: 3.x 섹토리얼, 4.x 컴파운드·리니어, OPD 는 아직 없음) — 대조 전인 조합만 이름으로
+  // 대조 여부는 (형식, 기법, 스큐)마다 (core/nde/viewer/meta.ts VERIFIED: 3.x 섹토리얼, 4.x 컴파운드·리니어·섹토리얼 스큐 90, OPD 는 아직 없음) — 대조 전인 조합만 이름으로
   const unverifiedKinds = [...new Set(shown.filter((g) => !g.verified).map((g) => unverifiedKindName(info.formatFamily, g)))]
   if (unverifiedKinds.length) {
     unverified.push(...unverifiedKinds)

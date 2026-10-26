@@ -6,7 +6,23 @@
  * 행 포커스에서 Delete 는 뷰어의 '초안 점 지우기'로 가지 않는다(NdeViewer 가 .label-side 안 키는 라벨 키로 받지 않음).
  */
 import { useRef, useState } from 'react'
-import { CONFIDENCE, HEIGHT_METHOD, OBSERVATION_STATUS, RECORD_KIND, type IndicationRecord, type ObservationStatus } from '@shared/labels'
+import {
+  CONFIDENCE,
+  EVIDENCE_GRADE,
+  HEIGHT_METHOD,
+  HIERARCHY_L0,
+  JUDGMENT_CHARACTER,
+  OBSERVATION_STATUS,
+  PROPOSAL_DEFECT_CLASS,
+  RECORD_KIND,
+  TRUTH_STATUS,
+  overlapMap,
+  recordTaxonomy,
+  type IndicationRecord,
+  type ObservationStatus,
+  type PhysicalDefect,
+  type RecordTaxonomy
+} from '@shared/labels'
 import { num } from '../lib/format'
 import { rowKeyHandler } from '../lib/rowNav'
 import type { ObservationGroupView, ObservationLegView } from './analysis'
@@ -39,7 +55,23 @@ export interface IndicationTableProps {
   readOnly?: boolean
   /** 2인 독립 모드: 기록에 남은 앱 제안도 숨긴다 */
   hideSuggestions?: boolean
+  /** 이 파일 시편의 물리 결함 (설계값 대조·확정 단계만, 블라인드·2인 독립 모드는 빈 목록 → 정답은 '판독만') */
+  physicalDefects?: readonly PhysicalDefect[]
   loading: boolean
+}
+
+/** 분류 줄: 결함 › 면상 › 균열 (판독 기준, 플랜 4장 L0/L1/L2) */
+export function hierarchyText(t: RecordTaxonomy): string {
+  if (t.l0 !== 'defect') return HIERARCHY_L0[t.l0]
+  const l1 = t.reading.l1 ? JUDGMENT_CHARACTER[t.reading.l1] : '면상·체적 모름'
+  const l2 = t.reading.l2 ? PROPOSAL_DEFECT_CLASS[t.reading.l2] : '5종 미정'
+  return `${HIERARCHY_L0.defect} › ${l1} › ${l2}`
+}
+
+/** 정답 줄: 근거 C · 확정 / 미확정 / 근거 D · 판독만 (플랜 D3) */
+export function truthText(t: RecordTaxonomy): string {
+  const head = t.grade ? `근거 ${EVIDENCE_GRADE[t.grade]} · ${TRUTH_STATUS[t.status]}` : TRUTH_STATUS[t.status]
+  return `${head} — ${t.reason}`
 }
 
 const STATUS_OPTIONS: Array<{ id: ObservationStatus; name: string }> = [
@@ -67,6 +99,9 @@ export function IndicationTable(p: IndicationTableProps) {
   const live = new Map(p.records.filter((r) => !r.deleted).map((r) => [r.uuid, r]))
   const list = [...p.numbers.keys()].map((u) => live.get(u)).filter((r): r is IndicationRecord => !!r)
   const sel = list.find((r) => r.uuid === p.selectedUuid) ?? null
+  const overlaps = overlapMap(list)
+  const selTax = sel ? recordTaxonomy(sel, p.physicalDefects ?? []) : null
+  const selOverlap = sel ? (overlaps.get(sel.uuid) ?? []).map((u) => p.numbers.get(u) ?? '?') : []
   const byId = new Map(list.map((r) => [r.uuid, r]))
   const onKeyDown = stopIfHandled(
     rowKeyHandler({
@@ -162,6 +197,24 @@ export function IndicationTable(p: IndicationTableProps) {
                   {sel.height.method ? HEIGHT_METHOD[sel.height.method] : '—'}
                   {sel.height.valueMm !== null ? ` · ${num(sel.height.valueMm, 2)} mm` : ''}
                 </dd>
+              </div>
+            ) : null}
+            {selTax ? (
+              <div className="label-panel__row">
+                <dt>분류</dt>
+                <dd>{hierarchyText(selTax)}</dd>
+              </div>
+            ) : null}
+            {selTax && selTax.l0 === 'defect' ? (
+              <div className="label-panel__row">
+                <dt>정답</dt>
+                <dd title="플랜 D3: 판독 종류와 데이터시트(물리 결함 설계값) 종류가 5종에서 같으면 확정, 다르면 미확정(분류 지표에서 뺌). 근거 A 단면·CT · B RT·UT 일치 · C 데이터시트·판독 일치 · D 판독만">{truthText(selTax)}</dd>
+              </div>
+            ) : null}
+            {selOverlap.length ? (
+              <div className="label-panel__row">
+                <dt>겹침</dt>
+                <dd title="같은 세트에서 상자(스캔 × V × 실제 깊이)가 겹치는 기록 — 학습 라벨에 겹침 표시가 붙습니다">{selOverlap.map((n) => `#${n}`).join(', ')}</dd>
               </div>
             ) : null}
             <div className="label-panel__row">

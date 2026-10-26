@@ -60,20 +60,25 @@ function isDrawn(t: ViewerTechnique): t is DrawnTechnique {
 }
 
 /**
- * OmniPC 6.6 화면과 대조해 맞춘 (형식, 기법, 스큐) — 이것만 verified. 열쇠 = '기법:스큐' ('기법:*' = 스큐와 무관).
+ * 기하를 검증한 (형식, 기법, 스큐) — 이것만 verified. 열쇠 = '기법:스큐' ('기법:*' = 스큐와 무관).
+ * 근거는 OmniPC 6.6 화면 대조가 기본이고, 4.x 섹토리얼 스큐 90 만 '검증 그룹 교차 대조'다(아래).
  *   - 3.x 섹토리얼: X3 12T-SV-01 (tests/omnipc.test.ts)
  *   - 4.x 컴파운드·리니어: OmniScan X4 TF_01_C_L_0001 GR-1 · TF_01_L_0001 GR-2 (tests/omnipcTf.test.ts, 2026-10-06).
  *     허용오차 ±0.5 mm 안에서 실측: S-scan 첫·끝 빔 경계 수직 거리 ≤ 0.13 mm, S-scan 범위 ≤ 0.25 mm, 게이트 A 빨간 점선 ≤ 0.07 mm,
  *     A-scan 깊이축 ≤ 0.04 mm, A% (스캔 0·빔 0) 2.61 / 3.27 (화면 2.6 / 3.3), C-scan 축 끝 ≤ 0.04 칸, C-scan 무늬 상관 0.999,
  *     S-scan 시작·끝 톱니 경계 픽셀 차이 1 % 안팎
- *   - 4.x 섹토리얼은 아직 캡처 대조 전 (같은 파일 GR-1 은 화면에 띄운 캡처가 없음)
+ *   - 4.x 섹토리얼 스큐 90 (2026-10-26, AI 개발 플랜 T3 — 기본값, 사용자 확인 대기): OmniPC 캡처가 아니라 검증 그룹 교차 대조.
+ *     TF_01_L_0001 GR-1(45~70° 26빔): 장비 TrueDepth 게이트 시작 깊이가 26빔 모두 0.01 mm 안, 같은 파일 리니어 60°(GR-2, 대조 완료)와
+ *     같은 광선 에코 시각 0.04 µs(음로 0.06 mm)·같은 에코 앱 좌표 ΔV −0.36 / Δ깊이 +0.02 mm (그 가운데 약 0.29 mm 는 그룹 음속 설정 차).
+ *     기하 함수(beamsOf·S-scan 조회표)는 대조를 마친 3.x 섹토리얼·4.x 컴파운드와 같다. 근거: 계획_AI개발/T3_섹토리얼_교차검증.md.
+ *     스큐 270 은 R 파일로 확인 전이라 올리지 않는다. 실물 기준 반사체(SDH)·OmniPC GR-1 캡처 대조는 남은 일.
  *   - OPD 는 빈 표로 시작한다(OPD_조사/판단.md 3.2). 출사점 V 를 '인덱스 오프셋 ± 출사점 X' 로 계산하는데 스큐 270 의 부호가 추정이라
  *     스큐마다 따로 올린다(예: 'pa-sectorial:90'). 진폭 눈금(캡처 O1·O2)·헤더 값(O9)이 정해지고 tests/omnipcOpd.test.ts 가
  *     통과한 조합만 올린다 — 화면 2장이 맞은 지금도 올리지 않는다(A% 가 화면마다 한 점, C-scan 색 차이가 풀리지 않음).
  */
 const VERIFIED: Readonly<Record<ViewerFormatFamily, ReadonlySet<string>>> = {
   '3.x': new Set(['pa-sectorial:*']),
-  '4.x': new Set(['pa-compound:*', 'pa-linear:*']),
+  '4.x': new Set(['pa-compound:*', 'pa-linear:*', 'pa-sectorial:90']),
   opd: new Set<string>()
 }
 

@@ -674,7 +674,8 @@
         const t = text()
         // 첫 커서 = 게이트 A C-scan 최대 칸 (Sect GR-1: 50.0 mm). 축 범위(42~86) 검사는 어떤 값이든 통과하므로 쓰지 않는다
         const firstOk = o.firstScanOk && !!o.firstScan && ro['스캔'] === o.firstScan.scanMm
-        return { ok: o.state === 'ok' && t.includes('OmniPC 대조 전') && t.includes('NDE 4.x') && firstOk, openMs: o.openMs, readout: ro, firstScan: o.firstScan, firstScanOk: o.firstScanOk }
+        // 4.x 섹토리얼 스큐 90 은 교차 대조로 검증(T3, 2026-10-26) → 대조 전 표시 없음 (스큐 270 이면 'NDE 4.x 섹토리얼 · 스큐 270')
+        return { ok: o.state === 'ok' && !t.includes('NDE 4.x 섹토리얼') && firstOk, openMs: o.openMs, readout: ro, firstScan: o.firstScan, firstScanOk: o.firstScanOk }
       }
     },
     {
@@ -1182,7 +1183,8 @@
         const info = opened.data.info
         const sect = info.groups.find((x) => x.technique === 'pa-sectorial')
         const lin = info.groups.find((x) => x.technique === 'pa-linear')
-        const groupsOk = info.groups.length === 2 && !!sect && !!lin && sect.supported && lin.supported && lin.verified && !sect.verified
+        // 섹토리얼 GR-1(스큐 90)은 2026-10-26 교차 대조로 검증(T3) — 두 그룹 모두 verified
+        const groupsOk = info.groups.length === 2 && !!sect && !!lin && sect.supported && lin.supported && lin.verified && sect.verified
         // 파일 화면 상태: Single · 현재 그룹 GR-2(리니어) → S-scan 하나, 대조 전 표시 없음
         const single = $$('.viewer__sscans .vpanel').length === 1 && readout()['그룹'] === lin.name && !text().includes('OmniPC 대조 전')
         const [ns, nb] = lin.shape
@@ -1199,14 +1201,14 @@
         const axisOk = Math.abs(ends.bottom - 1.02) <= 0.1 && Math.abs(ends.top - 44.96) <= 0.1
         // 화면: A% 3.3, DA^ ND (문턱 25 %)
         const readOk = ro['스캔'] === '0.0 mm' && Math.abs(a - exp.pct) <= 0.05 && Math.abs(a - 3.3) <= 0.1 && ro['깊이 DA^'] === 'ND'
-        // 모두 보기: 섹토리얼 GR-1 도 그려지고, 대조 전 표시는 4.x 섹토리얼만
+        // 모두 보기: 섹토리얼 GR-1 도 그려지고, 4.x 섹토리얼 스큐 90 은 교차 대조로 검증(T3, 2026-10-26)이라 대조 전 표시가 없다
         segClick('모두')
         await sleep(300)
         const allState = await waitFor(viewerState, 30000)
         await sleep(300)
         const panels = $$('.viewer__sscans .vpanel').length
         const t = text()
-        const badgeOk = t.includes('OmniPC 대조 전 (NDE 4.x 섹토리얼)') && !t.includes('볼 수 없는 그룹')
+        const badgeOk = !t.includes('NDE 4.x 섹토리얼') && !t.includes('볼 수 없는 그룹')
         segClick(lin.name)
         await sleep(500)
         return {

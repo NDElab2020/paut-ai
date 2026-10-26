@@ -12,6 +12,7 @@
  *   match.ts    지시 매칭 v1
  *   metrics.ts  평가 지표 v1
  *   grouping.ts 그룹 짓기(시방서 그림 5·6)·누적 길이·점 지시 수
+ *   taxonomy.ts 계층 종류(L0/L1/L2)·근거 등급(A~D)·정답 판정(확정/미확정)·겹침 (AI 개발 플랜 T2, 저장 칸에서 계산)
  *   derive/     기록 → 학습 라벨 계산 (관측 표·세 상태 장면·상자·A-scan 구간·형상 에코 후보·길이 제안)
  */
 export * from './types'
@@ -25,4 +26,5 @@ export * from './spans'
 export * from './match'
 export * from './metrics'
 export * from './grouping'
+export * from './taxonomy'
 export * from './derive'

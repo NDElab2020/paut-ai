@@ -52,14 +52,14 @@ function patchF64(bytes: Uint8Array, pos: number, v: number): Uint8Array {
 }
 
 describe('대조 표 (형식·기법·스큐): NDE 는 그대로, OPD 는 빈 표', () => {
-  it('NDE 3.x 섹토리얼 · 4.x 컴파운드·리니어는 스큐와 무관하게 대조 완료, 4.x 섹토리얼은 대조 전', () => {
+  it('NDE 3.x 섹토리얼 · 4.x 컴파운드·리니어는 스큐와 무관하게 대조 완료, 4.x 섹토리얼은 스큐 90 만 (교차 대조, T3)', () => {
     expect(verifiedKinds('3.x')).toEqual(['pa-sectorial:*'])
-    expect(verifiedKinds('4.x')).toEqual(['pa-compound:*', 'pa-linear:*'])
+    expect(verifiedKinds('4.x')).toEqual(['pa-compound:*', 'pa-linear:*', 'pa-sectorial:90'])
     for (const skew of [90, 270, 0, null]) {
       expect(isVerifiedKind('3.x', 'pa-sectorial', skew)).toBe(true)
       expect(isVerifiedKind('4.x', 'pa-compound', skew)).toBe(true)
       expect(isVerifiedKind('4.x', 'pa-linear', skew)).toBe(true)
-      expect(isVerifiedKind('4.x', 'pa-sectorial', skew)).toBe(false)
+      expect(isVerifiedKind('4.x', 'pa-sectorial', skew)).toBe(skew === 90)
       expect(isVerifiedKind('3.x', 'pa-linear', skew)).toBe(false)
     }
   })

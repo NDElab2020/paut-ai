@@ -157,6 +157,11 @@ export function createHandlers(ctx: MainContext): IpcHandlers {
     'specimens:list': (planId) => s.listSpecimens(planId === undefined || planId === null ? undefined : str(planId, '플랜 ID')),
     'specimens:get': (id) => s.getSpecimen(str(id, '시편 ID')),
     'specimens:update': (id, patch) => s.updateSpecimen(str(id, '시편 ID'), obj(patch, '시편 수정')),
+    'specimens:regroupPreview': () => s.previewSpecimenRegroup(),
+    'specimens:regroupApply': (ids) => {
+      if (!Array.isArray(ids) || ids.length > 100_000) throw new AppError('INVALID_ARGUMENT', '파일 목록이 올바르지 않습니다.')
+      return s.applySpecimenRegroup(ids.map((v) => int(v, '파일 ID')))
+    },
     'files:list': (query) => s.listFiles(query === undefined ? {} : obj(query, '검색 조건')),
     'files:get': (id) => s.getFile(int(id, '파일 ID')),
     'files:update': (id, patch) => s.updateFile(int(id, '파일 ID'), obj(patch, '파일 수정')),

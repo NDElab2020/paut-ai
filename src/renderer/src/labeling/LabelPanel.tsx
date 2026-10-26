@@ -220,10 +220,10 @@ export function LabelPanel(props: LabelPanelProps) {
     setReleasedWatch(null)
   }, [releasedWatch, reviews, loaded])
 
-  // ── 설계값 대조 단계: 물리 결함 ID 고르기 목록 ──
+  // ── 설계값 대조·확정 단계: 물리 결함 ID 고르기 목록, 지시 표의 정답 줄(근거 등급·확정/미확정) ──
   const [defects, setDefects] = useState<PhysicalDefect[]>([])
   useEffect(() => {
-    if (stage !== 'reconciled' || blind) {
+    if ((stage !== 'reconciled' && stage !== 'final') || blind) {
       setDefects([])
       return
     }
@@ -1038,6 +1038,7 @@ export function LabelPanel(props: LabelPanelProps) {
         busy={busy || !ready.ok}
         readOnly={readOnly !== null}
         hideSuggestions={blind}
+        physicalDefects={defects}
         loading={data.loading}
       />
 

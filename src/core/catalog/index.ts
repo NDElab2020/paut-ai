@@ -91,6 +91,10 @@ export interface Catalog {
   /** 없으면 만들고 있으면 그대로 반환 (displayName 덮어쓰지 않음). 대소문자만 다른 ID 는 같은 시편 */
   ensureSpecimen(input: specimens.SpecimenInput): Specimen
   updateSpecimen(id: SpecimenId, patch: SpecimenPatch): Specimen
+  /** 시편 다시 묶기용: 모든 파일의 시편·이름 (파일 ID 순) */
+  listFileIdentities(): specimens.FileIdentity[]
+  /** 파일의 시편만 바꾼다(사본은 그대로). 다른 곳에서 바뀌었으면 CONFLICT. removeIfEmpty 시편은 파일이 없어지면 지운다 */
+  moveFilesToSpecimen(moves: readonly specimens.SpecimenMove[], removeIfEmpty: readonly SpecimenId[]): specimens.SpecimenMoveResult
 
   findFileBySha256(sha256: string): FileRecord | null
   /** setupJson: 원본 셋업 JSON 전체 (file_setups 에 함께 저장) */
@@ -187,6 +191,8 @@ export function openCatalog(dbPath: string, options: OpenCatalogOptions = {}): C
     getSpecimen: (id) => specimens.listSpecimens(db, undefined, id)[0] ?? null,
     ensureSpecimen: (input) => specimens.ensureSpecimen(db, input, now()),
     updateSpecimen: (id, patch) => specimens.updateSpecimen(db, id, patch, now()),
+    listFileIdentities: () => specimens.listFileIdentities(db),
+    moveFilesToSpecimen: (moves, removeIfEmpty) => specimens.moveFilesToSpecimen(db, moves, removeIfEmpty, now()),
 
     findFileBySha256: (sha) => files.findFileBySha256(db, sha),
     insertFile: (input, setupJson) => files.insertFile(db, input, setupJson),

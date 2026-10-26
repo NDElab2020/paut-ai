@@ -24,7 +24,9 @@ const api: PautApi = {
   specimens: {
     list: call(API_CHANNEL_MAP.specimens.list),
     get: call(API_CHANNEL_MAP.specimens.get),
-    update: call(API_CHANNEL_MAP.specimens.update)
+    update: call(API_CHANNEL_MAP.specimens.update),
+    regroupPreview: call(API_CHANNEL_MAP.specimens.regroupPreview),
+    regroupApply: call(API_CHANNEL_MAP.specimens.regroupApply)
   },
   files: {
     list: call(API_CHANNEL_MAP.files.list),

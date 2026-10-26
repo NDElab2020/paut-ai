@@ -55,6 +55,7 @@ import {
   type DeriveRun,
   type SceneState
 } from '@shared/labels/derive'
+import { TAXONOMY_RULES_VERSION, overlapMap, recordTaxonomy, type RecordTaxonomy } from '@shared/labels/taxonomy'
 import { LABEL_COORD_RULES_VERSION, LABEL_EXPORT_FORMAT, LABEL_SCHEMA_VERSION } from '@shared/labels/types'
 import type {
   FileAlignment,
@@ -290,8 +291,21 @@ function splitName(s: TrainSplit | null): TrainSplitOrNone {
   return s ?? 'unassigned'
 }
 
-/** 고른 세트의 저장 단위 사본 (정렬) — labels.json */
-function labelsDoc(f: TrainingSourceFile): Record<string, unknown> {
+/** 기록마다 계층 종류·정답 판정·겹침 (shared/labels/taxonomy.ts — AI 개발 플랜 T2) */
+type RecordTaxonomyOut = RecordTaxonomy & { physicalDefectId: string | null; overlapWith: string[] }
+
+function taxonomyOf(f: TrainingSourceFile): Map<string, RecordTaxonomyOut> {
+  const live = f.records.filter((r) => !r.deleted)
+  const over = overlapMap(live)
+  return new Map(
+    [...live]
+      .sort((a, b) => cmpStr(a.uuid, b.uuid))
+      .map((r) => [r.uuid, { ...recordTaxonomy(r, f.physicalDefects), physicalDefectId: r.physicalDefectId, overlapWith: [...(over.get(r.uuid) ?? [])].sort(cmpStr) }])
+  )
+}
+
+/** 고른 세트의 저장 단위 사본 (정렬) — labels.json. taxonomy = 기록마다 계산한 계층 종류·근거 등급·확정 여부·겹침 */
+function labelsDoc(f: TrainingSourceFile, tax: ReadonlyMap<string, RecordTaxonomyOut>): Record<string, unknown> {
   return {
     format: 'paut-train-labels',
     version: TRAINING_EXPORT_VERSION,
@@ -306,7 +320,8 @@ function labelsDoc(f: TrainingSourceFile): Record<string, unknown> {
     reviewIntervals: [...f.reviewIntervals].sort((a, b) => cmpStr(a.uuid, b.uuid)),
     observations: [...f.observations].sort((a, b) => cmpStr(a.recordUuid, b.recordUuid) || a.groupId - b.groupId || a.leg - b.leg),
     fileAlignment: f.alignment,
-    physicalDefects: [...f.physicalDefects].sort((a, b) => cmpStr(a.specimenId, b.specimenId) || cmpStr(a.id, b.id))
+    physicalDefects: [...f.physicalDefects].sort((a, b) => cmpStr(a.specimenId, b.specimenId) || cmpStr(a.id, b.id)),
+    taxonomy: { rulesVersion: TAXONOMY_RULES_VERSION, records: Object.fromEntries(tax) }
   }
 }
 
@@ -647,6 +662,7 @@ export async function runTrainingExport(job: TrainingExportJob): Promise<Trainin
       const folder = `files/${f.sha256.slice(0, 16)}`
       fr.folder = folder
       fr.status = 'exported'
+      const tax = taxonomyOf(f)
       const extras = formatExtras(info)
       if (Object.keys(extras).length > 0) formatOf.set(f.sha256, { formatFamily: info.formatFamily, version: info.version, ...extras })
       fr.scenes = res.scenes.length
@@ -766,10 +782,20 @@ export async function runTrainingExport(job: TrainingExportJob): Promise<Trainin
                 const px = objectBoxPixels(kit, run, s, o)
                 const cls = classOf(o)
                 lines.push(yoloLine(cls, kit.vp, px))
+                const t = tax.get(o.recordUuid)
                 push(cls, px, 0, {
                   recordUuid: o.recordUuid,
                   kind: o.kind,
                   defectType: o.defectType,
+                  // 계층 종류(판독)·정답(D3)·겹침 — labels.json taxonomy 와 같은 값 (형상 에코는 l1·l2 null)
+                  l1: t?.reading.l1 ?? null,
+                  l2: t?.reading.l2 ?? null,
+                  truthStatus: t?.status ?? null,
+                  truthL1: t?.truth.l1 ?? null,
+                  truthL2: t?.truth.l2 ?? null,
+                  grade: t?.grade ?? null,
+                  physicalDefectId: t?.physicalDefectId ?? null,
+                  overlapWith: t?.overlapWith ?? [],
                   typeConfidence: o.typeConfidence,
                   leg: o.leg,
                   status: o.status,
@@ -814,7 +840,7 @@ export async function runTrainingExport(job: TrainingExportJob): Promise<Trainin
       // JSON 넷
       const scenesDoc: Record<string, unknown> = { ...res, ascanSpans: undefined, exportFormat: TRAINING_EXPORT_FORMAT, ascanFile: 'ascan.json' }
       await out.put(`${folder}/meta.json`, stableJson(metaDoc(f, info, run, thickness, outputs), true))
-      await out.put(`${folder}/labels.json`, stableJson(labelsDoc(f)))
+      await out.put(`${folder}/labels.json`, stableJson(labelsDoc(f, tax)))
       await out.put(`${folder}/scenes.json`, stableJson(scenesDoc))
       const asc = ascanLabels(run, live)
       await out.put(

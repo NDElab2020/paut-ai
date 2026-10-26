@@ -10,12 +10,20 @@ export interface SpecimenPattern {
   name: string
   /** 첫 캡처 그룹 = 접두사, 둘째 = 번호 */
   re: RegExp
+  /** 정규화 방식. 없으면 대문자 접두사 + 번호 ('PL23833') */
+  format?: (prefix: string, digits: string) => string
 }
 
-/** 시편 ID 패턴 (위에서부터 우선). 대문자 접두사 + 숫자로 정규화한다 */
+/**
+ * 시편 ID 패턴 (위에서부터 우선). 대문자 접두사 + 숫자로 정규화한다.
+ * TF 번호(자체 X4 Sonaspection 시편, 'TF_01_C_L_0001.nde' · 'TF_11_3_R.nde')는 쓰는 이름 그대로 'TF_01' 로 둔다.
+ * 그래야 한 시편의 양쪽 스큐·설정·반복 파일이 한 시편으로 묶여 학습 분할(시편 단위)과 물리 결함 연결이 맞는다
+ * (AI 개발 플랜 T4, 2026-10-26 — 'TF_xx = 물리 시편 하나'는 플랜 1.4절 가정, 확인 대기).
+ */
 export const DEFAULT_SPECIMEN_PATTERNS: readonly SpecimenPattern[] = [
   { name: 'PL 번호', re: /(?<![A-Za-z0-9])(PL)[-_ ]?(\d{2,})(?![0-9])/i },
-  { name: 'TP 번호', re: /(?<![A-Za-z0-9])(TP)[-_ ]?(\d{2,})(?![0-9])/i }
+  { name: 'TP 번호', re: /(?<![A-Za-z0-9])(TP)[-_ ]?(\d{2,})(?![0-9])/i },
+  { name: 'TF 번호', re: /(?<![A-Za-z0-9])(TF)[-_ ]?(\d{2,})(?![0-9])/i, format: (p, d) => `${p}_${d}` }
 ]
 
 export type StateTag = 'Cap on' | 'Cap off'
@@ -42,7 +50,7 @@ function stem(fileName: string): string {
 export function matchSpecimenId(text: string, patterns: readonly SpecimenPattern[] = DEFAULT_SPECIMEN_PATTERNS): string | null {
   for (const p of patterns) {
     const m = p.re.exec(text)
-    if (m) return `${m[1]!.toUpperCase()}${m[2]}`
+    if (m) return p.format ? p.format(m[1]!.toUpperCase(), m[2]!) : `${m[1]!.toUpperCase()}${m[2]}`
   }
   return null
 }
@@ -91,7 +99,7 @@ export function suggestSpecimen(
       break
     }
   }
-  if (!guess.specimenId) guess.notes.push('파일명에서 시편 ID 패턴(PL·TP 번호)을 찾지 못했습니다.')
+  if (!guess.specimenId) guess.notes.push('파일명에서 시편 ID 패턴(PL·TP·TF 번호)을 찾지 못했습니다.')
 
   // 상태 태그는 사람이 붙인 현재 파일명('Cap on')을 우선, 없으면 장비 파일명('CAP20')
   const states = sources.map((s) => ({ s, m: matchStateTag(s.text) })).filter((x) => x.m)

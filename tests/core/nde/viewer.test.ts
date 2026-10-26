@@ -296,8 +296,9 @@ describe.skipIf(!HAS_EXAMPLES)('공식 예제 11개', () => {
       for (const g of info.groups) {
         if (g.supported) {
           expect(g.reason).toBeNull()
-          // OmniPC 대조 완료: 3.x 섹토리얼(X3), 4.x 컴파운드·리니어(TF_01 캡처) — meta.ts VERIFIED
-          expect(g.verified).toBe(info.formatFamily === '3.x' ? g.technique === 'pa-sectorial' : g.technique !== 'pa-sectorial')
+          // 대조 완료: 3.x 섹토리얼(X3), 4.x 컴파운드·리니어(TF_01 캡처), 4.x 섹토리얼 스큐 90(교차 대조, T3) — meta.ts VERIFIED
+          const skew90 = Math.round(g.beams[0]?.skewDeg ?? -1) % 360 === 90
+          expect(g.verified).toBe(info.formatFamily === '3.x' ? g.technique === 'pa-sectorial' : g.technique !== 'pa-sectorial' || skew90)
           expect(g.cscanGateId).not.toBeNull()
           const chunk = await readViewerChunk(path, g, 0, 2)
           expect(chunk.amplitude.length).toBe(2 * g.shape[1] * g.shape[2])

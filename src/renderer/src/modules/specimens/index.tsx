@@ -13,6 +13,7 @@ import { rowKeyHandler } from '../../lib/rowNav'
 import { useAsync } from '../../lib/useAsync'
 import { useApp } from '../../state/AppContext'
 import { FilesBySpecimen } from '../plans/FilesBySpecimen'
+import { RegroupNotice } from './RegroupNotice'
 
 /** 시편 이름·태그와 연결된 각 플랜 셋업으로 검색한다. 플랜의 치수를 시편 공통 치수로 합치지 않는다. */
 export function specimenSearchFields(s: SpecimenSummary, plans: ScanPlan[]): Array<string | null | undefined> {
@@ -46,6 +47,7 @@ export default function SpecimensModule({ route, navigate }: ModuleProps) {
   return (
     <div className="module-fill">
       {header}
+      {storeRoot ? <RegroupNotice storeRoot={storeRoot} /> : null}
       <div className="plans">
         <div className="plans__list">
           <div className="toolbar plans__list-head"><span className="toolbar__count">{q ? `시편 ${visible.length} / ${specimens.length}` : `시편 ${specimens.length}`}</span></div>

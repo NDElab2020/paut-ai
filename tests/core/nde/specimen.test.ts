@@ -40,6 +40,14 @@ describe('파일명 규칙', () => {
     expect(matchSpecimenId('TP 07')).toBe('TP07')
     expect(matchSpecimenId('APL23833')).toBeNull()
     expect(matchSpecimenId('12T-SV-01-Cap on')).toBeNull()
+    // TF 번호 (자체 X4 Sonaspection 시편): 쓰는 이름 그대로 'TF_01' — 양쪽 스큐·설정·반복 파일이 한 시편
+    expect(matchSpecimenId('TF_01_C_L_0001')).toBe('TF_01')
+    expect(matchSpecimenId('TF_10_R_0003')).toBe('TF_10')
+    expect(matchSpecimenId('TF_11_3_R')).toBe('TF_11')
+    expect(matchSpecimenId('tf-12')).toBe('TF_12')
+    expect(matchSpecimenId('TFM_01')).toBeNull()
+    expect(matchSpecimenId('XTF_01')).toBeNull()
+    expect(suggestSpecimen(null, 'TF_01_L_0001.nde')).toMatchObject({ specimenId: 'TF_01', source: 'filename', round: null })
   })
 
   it('상태 태그', () => {

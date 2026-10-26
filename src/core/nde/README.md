@@ -13,7 +13,7 @@ Evident `.nde`(HDF5)를 `h5wasm/node` 로 **읽기 전용**으로 열어 파일 
 | `diffSpecs(a, b)` / `describeDifference(d)` / `specDistance` | 차이 목록(한국어 라벨) / '두께 12 mm → 25 mm' / 가까운 플랜 고르기 |
 | `summarizeSpec(spec)` / `suggestPlanName(spec)` | '판재 12 mm · V 개선 · 5L64-A32 ×2 · ±15 mm · PA 섹터 40–70°' / '12T · 5MHz · SK90/270' (두께 · 주파수 · 스큐) |
 | `summarizeAcquisition(setup)` | 지문 제외 기록값(게인·음속·게이트·TCG·보정·스캔 격자·엔코더) |
-| `suggestSpecimen(meta, fileName)` | 시편 ID(PL·TP 번호, 장비 원본 파일명 우선)·Cap on/off·회차·태그 + 근거 |
+| `suggestSpecimen(meta, fileName)` | 시편 ID(PL·TP 번호, TF 번호는 'TF_01' 그대로 — 2026-10-26, 장비 원본 파일명 우선)·Cap on/off·회차·태그 + 근거 |
 
 ## 오류 (`NdeError.reason` → `code`)
 
@@ -83,7 +83,7 @@ OmniPC 처럼 S·C·A·B-scan 을 그리기 위한 읽기. 계산(좌표·색·S
 
 근거 규칙(OmniPC 조사, 2026-10-07): 위 비공개 XML 칸 이름·값은 **우리 데이터 파일 덤프**(`../../OmniPC_조사/4_NDE설정.md`)와 공개 MXU 설명서·ndeformat 으로만 해석한다. OmniPC 설치본·프로그램 파일은 열거나 근거로 쓰지 않는다(사용권의 역설계 금지).
 
-- 지원: PA 섹토리얼·리니어·컴파운드 펄스에코, 스큐 90/270, 정류된 16비트 진폭 (3.x·4.x). `verified` 는 (형식, 기법)마다 `VERIFIED` 표: 3.x 섹토리얼(X3 12T-SV-01), 4.x 컴파운드·리니어(X4 TF_01_C_L_0001·TF_01_L_0001 GR-2) 만 OmniPC 화면과 대조, 그 밖(4.x 섹토리얼 등)은 대조 전 표시. B-scan 은 형식과 관계없이 대조 전(화면에 표시).
+- 지원: PA 섹토리얼·리니어·컴파운드 펄스에코, 스큐 90/270, 정류된 16비트 진폭 (3.x·4.x). `verified` 는 (형식, 기법)마다 `VERIFIED` 표: 3.x 섹토리얼(X3 12T-SV-01), 4.x 컴파운드·리니어(X4 TF_01_C_L_0001·TF_01_L_0001 GR-2) 는 OmniPC 화면과 대조, 4.x 섹토리얼 스큐 90 은 검증 그룹 교차 대조(TF_01_L_0001 GR-1 ↔ GR-2·장비 TrueDepth, 2026-10-26 — `계획_AI개발/T3_섹토리얼_교차검증.md`), 그 밖(4.x 섹토리얼 스큐 270 등)은 대조 전 표시. B-scan 은 형식과 관계없이 대조 전(화면에 표시).
 - 아직 안 그림(이유 표시): UT·ToFD·TFM, 빔 2개 미만, 스큐 0/180·섞인 스큐, RF, 그룹 200 MB 초과, 리니어·컴파운드 중 같은 각도·같은 출사점 빔이 겹치거나 굴절각이 커질 때 출사점이 반대로 물러나는 배치.
 - 시간 0 = 진폭 차원 빔의 `ultrasoundOffset`(출사점 기준, beamDelay 더하지 않음). 빔 각도·스큐·출사점도 진폭 차원 값(3.x `paut.beams[].skewAngle` 은 0 이라 쓰지 않음).
 - 검증: `tests/core/nde/viewer.test.ts`(X3 + 공식 예제 11개), `tests/imaging.test.ts`(심은 반사체, 리니어·컴파운드 빔 순서), `tests/omnipc.test.ts`(OmniPC 정답표 `tests/fixtures/omnipc/`, 장비 `RawCScan` 교차 확인, `PAUT_VIEWER_SHOTS=<폴더>` 면 대조 그림 저장), `tests/omnipcTf.test.ts`(X4 컴파운드·리니어 캡처 대조).

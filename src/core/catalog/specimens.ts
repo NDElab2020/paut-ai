@@ -124,3 +124,100 @@ function groupBySpecimen(rows: Row[]): Map<string, string[]> {
   }
   return m
 }
+
+// ───────────────────────────── 시편 다시 묶기 (AI 개발 플랜 T4) ─────────────────────────────
+
+/** 시편 다시 묶기 계획에 쓰는 파일 이름들 */
+export interface FileIdentity {
+  id: number
+  planId: PlanId
+  specimenId: SpecimenId
+  /** 그 시편 행의 ID 출처 */
+  specimenSource: SpecimenIdSource
+  storedFileName: string
+  sourceFileName: string
+  deviceFileName: string | null
+}
+
+export function listFileIdentities(db: Db): FileIdentity[] {
+  return db
+    .all(
+      `SELECT f.id, f.plan_id, f.specimen_id, s.source AS specimen_source, f.stored_file_name, f.source_file_name, f.device_file_name
+       FROM files f JOIN specimens s ON s.id = f.specimen_id ORDER BY f.id`
+    )
+    .map((r) => ({
+      id: num(r.id),
+      planId: str(r.plan_id),
+      specimenId: str(r.specimen_id),
+      specimenSource: str(r.specimen_source) as SpecimenIdSource,
+      storedFileName: str(r.stored_file_name),
+      sourceFileName: str(r.source_file_name),
+      deviceFileName: strOrNull(r.device_file_name)
+    }))
+}
+
+export interface SpecimenMove {
+  fileId: number
+  /** 지금 시편 (다른 곳에서 바뀌었으면 CONFLICT) */
+  fromSpecimenId: SpecimenId
+  toSpecimenId: SpecimenId
+  /** 새 시편 행을 만들 때의 출처 */
+  toSource: SpecimenIdSource
+}
+
+export interface SpecimenMoveResult {
+  moved: number
+  createdSpecimens: SpecimenId[]
+  removedSpecimens: SpecimenId[]
+}
+
+/**
+ * 파일의 시편만 바꾼다 (한 트랜잭션). 저장된 사본은 옮기지 않는다 — 저장 경로(stored_rel_path)는 파일마다 따로 있어
+ * 시편 폴더 이름이 옛 ID 로 남아도 읽기에 문제가 없다(폴더는 가져올 때만 시편 ID 로 정한다).
+ * removeIfEmpty 에 준 시편은 파일이 하나도 남지 않으면 행을 지운다(호출 쪽이 라벨·분할이 걸리지 않은 것만 준다).
+ */
+export function moveFilesToSpecimen(
+  db: Db,
+  moves: readonly SpecimenMove[],
+  removeIfEmpty: readonly SpecimenId[],
+  now: string
+): SpecimenMoveResult {
+  return db.transaction(() => {
+    const created: SpecimenId[] = []
+    const touched = new Set<SpecimenId>()
+    let moved = 0
+    for (const m of moves) {
+      const to = validateSpecimenId(m.toSpecimenId)
+      if (!SOURCES.includes(m.toSource)) throw new AppError('INVALID_ARGUMENT', '시편 ID 출처 값이 올바르지 않습니다.')
+      let target = getSpecimenRow(db, to)
+      if (!target) {
+        db.run(
+          `INSERT INTO specimens(id, display_name, source, note, created_at, updated_at)
+           VALUES ($id, $id, $source, '', $now, $now)`,
+          { id: to, source: m.toSource, now }
+        )
+        target = getSpecimenRow(db, to)!
+        created.push(target.id)
+      }
+      const r = db.run('UPDATE files SET specimen_id = $to WHERE id = $id AND specimen_id = $from COLLATE NOCASE', {
+        to: target.id,
+        id: m.fileId,
+        from: m.fromSpecimenId.normalize('NFC').trim()
+      })
+      if (r.changes !== 1) throw new AppError('CONFLICT', `파일 #${m.fileId} 의 시편이 그사이 바뀌었습니다. 미리보기를 다시 여세요.`)
+      touched.add(target.id)
+      moved++
+    }
+    const removed: SpecimenId[] = []
+    for (const id of new Set(removeIfEmpty.map((x) => x.normalize('NFC').trim()))) {
+      const left = db.get('SELECT count(*) AS n FROM files WHERE specimen_id = $id COLLATE NOCASE', { id })
+      if (num(left?.n) > 0) continue
+      const row = getSpecimenRow(db, id)
+      if (!row) continue
+      db.run('DELETE FROM specimens WHERE id = $id', { id: row.id })
+      removed.push(row.id)
+    }
+    for (const id of touched) db.run('UPDATE specimens SET updated_at = $now WHERE id = $id', { id, now })
+    return { moved, createdSpecimens: created, removedSpecimens: removed }
+  })
+}

@@ -117,7 +117,8 @@ body {
 .notice + .notice,
 .notice + .empty,
 .notice + .dropzone,
-.notice + .panel {
+.notice + .panel,
+.notice + .plans {
   margin-top: var(--sp-4);
 }
 

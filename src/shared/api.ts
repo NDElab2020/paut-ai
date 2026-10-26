@@ -87,6 +87,34 @@ export interface SpecimenPatch {
   note?: string
 }
 
+/**
+ * 시편 다시 묶기 제안 한 줄 (core/service/specimenRegroup.ts). 파일명을 임시 시편 ID 로 받은 파일을
+ * 지금 패턴(PL·TP·TF 번호)으로 다시 본 결과. 파일 사본은 옮기지 않고 카탈로그의 시편만 바꾼다.
+ */
+export interface SpecimenRegroupItem {
+  fileId: FileId
+  fileName: string
+  planId: PlanId
+  fromSpecimenId: SpecimenId
+  toSpecimenId: SpecimenId
+  /** 근거 ('시편 ID 'TF_01' 를 현재 파일명 …에서 찾았습니다.') */
+  note: string
+  /** 옮기지 않는 이유 (null = 옮길 수 있음) */
+  blocked: string | null
+}
+
+export interface SpecimenRegroupPreview {
+  items: SpecimenRegroupItem[]
+}
+
+export interface SpecimenRegroupResult {
+  moved: number
+  /** 옮기지 않은 줄 (그사이 막힘·사라짐) */
+  skipped: number
+  createdSpecimens: SpecimenId[]
+  removedSpecimens: SpecimenId[]
+}
+
 export type ChoosePathsMode = 'files' | 'folder'
 
 /** 이미지 보기: 파일 열기 결과 (그룹·축·빔·게이트·색표 등 수 KB) */
@@ -996,6 +1024,8 @@ export const IPC = {
   specimensList: 'specimens:list',
   specimensGet: 'specimens:get',
   specimensUpdate: 'specimens:update',
+  specimensRegroupPreview: 'specimens:regroupPreview',
+  specimensRegroupApply: 'specimens:regroupApply',
   filesList: 'files:list',
   filesGet: 'files:get',
   filesUpdate: 'files:update',
@@ -1076,6 +1106,10 @@ export interface IpcContract {
   'specimens:list': { args: [planId?: PlanId]; result: SpecimenSummary[] }
   'specimens:get': { args: [id: SpecimenId]; result: SpecimenSummary }
   'specimens:update': { args: [id: SpecimenId, patch: SpecimenPatch]; result: Specimen }
+  /** 파일명을 임시 시편 ID 로 받은 파일을 지금 패턴으로 다시 묶자는 제안 (쓰지 않음) */
+  'specimens:regroupPreview': { args: []; result: SpecimenRegroupPreview }
+  /** 고른 파일만 다시 묶는다. 미리보기를 다시 계산해 그사이 막히거나 사라진 줄은 건너뛴다 */
+  'specimens:regroupApply': { args: [fileIds: FileId[]]; result: SpecimenRegroupResult }
   'files:list': { args: [query: FileQuery]; result: FileListPage }
   'files:get': { args: [id: FileId]; result: FileRecord }
   'files:update': { args: [id: FileId, patch: FileAnnotationPatch]; result: FileRecord }
@@ -1234,6 +1268,8 @@ export interface PautApi {
     list: Call<'specimens:list'>
     get: Call<'specimens:get'>
     update: Call<'specimens:update'>
+    regroupPreview: Call<'specimens:regroupPreview'>
+    regroupApply: Call<'specimens:regroupApply'>
   }
   files: {
     list: Call<'files:list'>
@@ -1314,7 +1350,13 @@ export const API_CHANNEL_MAP = {
   app: { info: IPC.appInfo },
   settings: { get: IPC.settingsGet, set: IPC.settingsSet, chooseStoreRoot: IPC.settingsChooseStoreRoot },
   plans: { list: IPC.plansList, get: IPC.plansGet, rename: IPC.plansRename, setNote: IPC.plansSetNote },
-  specimens: { list: IPC.specimensList, get: IPC.specimensGet, update: IPC.specimensUpdate },
+  specimens: {
+    list: IPC.specimensList,
+    get: IPC.specimensGet,
+    update: IPC.specimensUpdate,
+    regroupPreview: IPC.specimensRegroupPreview,
+    regroupApply: IPC.specimensRegroupApply
+  },
   files: { list: IPC.filesList, get: IPC.filesGet, update: IPC.filesUpdate, reveal: IPC.filesReveal },
   import: {
     choosePaths: IPC.importChoosePaths,

@@ -31,6 +31,7 @@ import {
   type ReviewSideKey,
   type ReviewSourceFile,
   type ReviewSources,
+  type SpecimenRegroupItem,
   type TrainSplit,
   type TrainSplitOrNone,
   type TrainingExportFileResult,
@@ -372,6 +373,18 @@ const NEW_FP = 'fp2:mock-4.2-pa-sect-sk90'
 function suggestSpecimen(name: string): { id: string; source: 'device-filename' | 'filename' } {
   const m = /PL\d{4,}/i.exec(name)
   return m ? { id: m[0].toUpperCase(), source: 'device-filename' } : { id: sanitizeSpecimenId(name.replace(/\.[^.]+$/, '')), source: 'filename' }
+}
+
+/** 시편 다시 묶기 (가짜): 파일명이 시편 ID 인 파일 중 TF 번호가 있는 것 */
+function mockRegroupItems(): SpecimenRegroupItem[] {
+  return state.files.flatMap((f) => {
+    const sp = state.specimens.find((x) => x.id === f.specimenId)
+    const m = /(?<![A-Za-z0-9])TF[-_ ]?(\d{2,})(?![0-9])/i.exec(f.meta.sourceFileName)
+    if (!sp || sp.source !== 'filename' || !m) return []
+    const to = `TF_${m[1]}`
+    if (to.toLowerCase() === f.specimenId.toLowerCase()) return []
+    return [{ fileId: f.id, fileName: f.storedFileName, planId: f.planId, fromSpecimenId: f.specimenId, toSpecimenId: to, note: `시편 ID '${to}' 를 현재 파일명에서 찾았습니다.`, blocked: null }]
+  })
 }
 
 function suggestTag(name: string): string | null {
@@ -759,6 +772,23 @@ export function createMockApi(scenario: MockScenario = 'default', options: { rev
           if (!s) throw new Error(`시편 ${id} 을(를) 찾을 수 없습니다.`)
           Object.assign(s, patch)
           return { ...s }
+        }),
+      regroupPreview: () => respond(() => ({ items: mockRegroupItems() })),
+      regroupApply: (ids) =>
+        respond(() => {
+          const want = new Set(ids)
+          const ok = mockRegroupItems().filter((i) => want.has(i.fileId) && !i.blocked)
+          const created: string[] = []
+          for (const i of ok) {
+            if (!state.specimens.some((x) => x.id.toLowerCase() === i.toSpecimenId.toLowerCase())) {
+              state.specimens.push({ id: i.toSpecimenId, displayName: i.toSpecimenId, source: 'filename', note: '', createdAt: nowIso() })
+              created.push(i.toSpecimenId)
+            }
+            findFile(i.fileId).specimenId = i.toSpecimenId
+          }
+          const removed = [...new Set(ok.map((i) => i.fromSpecimenId))].filter((id) => !state.files.some((f) => f.specimenId === id))
+          state.specimens = state.specimens.filter((x) => !removed.includes(x.id))
+          return { moved: ok.length, skipped: want.size - ok.length, createdSpecimens: created, removedSpecimens: removed }
         })
     },
     files: {
